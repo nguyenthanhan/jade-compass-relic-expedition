@@ -84,16 +84,50 @@ export class GeminiProvider extends BaseLLMProvider {
 
   async testConnection(): Promise<boolean> {
     try {
-      const response = await fetch(
-        `${this.apiBase}/v1beta/models?key=${this.apiKey}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
+      this.logRequest(
+        "testConnection",
+        this.generateRequestId(),
+        this.model,
+        this.apiKey
       );
-      return response.ok;
+      // Minimal authenticated call to validate API key
+      const url = `${this.apiBase}/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`;
+      const resp = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: "ping" }] }],
+          generationConfig: {
+            temperature: 0,
+            maxOutputTokens: 1,
+            responseMimeType: "application/json",
+          },
+        }),
+      });
+
+      // Explicitly fail on auth errors
+      if (resp.status === 401 || resp.status === 403) return false;
+
+      // Success range: consider key valid; validate payload if possible
+      if (resp.ok) {
+        try {
+          const data = await resp.json();
+          if (
+            data &&
+            Array.isArray(data.candidates) &&
+            data.candidates.length > 0
+          ) {
+            return true;
+          }
+          return true; // key worked even if payload is unexpected
+        } catch {
+          return true; // key worked
+        }
+      }
+
+      return false;
     } catch (error) {
       console.error("Gemini connection test failed:", error);
       return false;
@@ -136,10 +170,29 @@ export class GeminiProvider extends BaseLLMProvider {
 
     const data = await response.json();
 
-    if (!data.candidates || !data.candidates[0]?.content?.parts?.[0]?.text) {
-      throw new Error("Invalid response structure from Gemini");
+    // Log the full response for debugging (only in development)
+    if (process.env.NODE_ENV === "development") {
+      console.log("Gemini API Response:", JSON.stringify(data, null, 2));
     }
 
-    return data.candidates[0].content.parts[0].text;
+    if (!data.candidates || data.candidates.length === 0) {
+      throw new Error("No candidates in Gemini response");
+    }
+
+    const candidate = data.candidates[0];
+    if (!candidate.content) {
+      throw new Error("No content in Gemini candidate");
+    }
+
+    if (!candidate.content.parts || candidate.content.parts.length === 0) {
+      throw new Error("No parts in Gemini content");
+    }
+
+    const text = candidate.content.parts[0].text;
+    if (!text) {
+      throw new Error("No text in Gemini response part");
+    }
+
+    return text;
   }
 }

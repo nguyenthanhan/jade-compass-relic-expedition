@@ -85,6 +85,26 @@ body {
     0 3px 0 0 var(--border);
 }
 
+/* Slimmer pixel border for compact UI elements */
+.pixel-border-sm {
+  border: 2px solid var(--border);
+  box-shadow:
+    -2px 0 0 0 var(--border),
+    2px 0 0 0 var(--border),
+    0 -2px 0 0 var(--border),
+    0 2px 0 0 var(--border);
+}
+
+/* Thicker pixel border for emphasis */
+.pixel-border-lg {
+  border: 5px solid var(--border);
+  box-shadow:
+    -5px 0 0 0 var(--border),
+    5px 0 0 0 var(--border),
+    0 -5px 0 0 var(--border),
+    0 5px 0 0 var(--border);
+}
+
 .pixel-shadow {
   box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.25);
 }
