@@ -30,7 +30,7 @@ Providers may extend with extra fields but must preserve this minimal schema.
 
 ### Victory & Failure
 
-- **Victory (clear all rounds):** Show **“Chúc mừng bạn đã tìm thấy một chiếc nồi.”**
+- **Victory (clear all rounds):** Show **"Congratulations! You have found the pot."**
 
 - **Failure (wrong choice):** Show a **failure summary**, composed of:
 
@@ -107,7 +107,7 @@ If the response is malformed or times out → fallback to **offline event pool**
 
 - **In-game**
 
-  - Header: “Round i of X”
+  - Header: "Round i of X"
   - Cards styled like pixel-art panels with **title + summary**
   - Hover = pixel highlight, press = chiptune sound
   - Keyboard navigation (1..N) + ARIA roles
@@ -115,18 +115,20 @@ If the response is malformed or times out → fallback to **offline event pool**
 - **Transitions**
 
   - Success → fade or slide to next round
-  - Failure → pixel-art “Game Over” overlay with failure summary
+  - Failure → pixel-art "Game Over" overlay with failure summary
 
 - **Victory Screen**
 
   - Treasure chest pixel animation opening
   - Display victory text + **Play Again**
 
-- **Settings Drawer**
+- **Settings Modal**
 
   - Accessible anytime
   - Change provider/model/key
   - Changes apply **from the next LLM call**
+  - **Test Connection** button positioned in footer for better UX
+  - **Streamlined model selection** with clean, minimal interface
 
 ---
 
@@ -139,18 +141,65 @@ If the response is malformed or times out → fallback to **offline event pool**
 
 ---
 
+## Implementation Status
+
+### ✅ Completed Features
+
+- **Core Game Engine**: Round-based choice system with narrative state management
+- **Provider Adapter Pattern**: OpenRouter and Google Gemini integration
+- **Offline Fallback System**: Robust event pool with 8+ unique scenarios
+- **Settings Management**: API key storage, provider selection, model configuration
+- **UI/UX Improvements**:
+  - Streamlined model lists (removed verbose labels/descriptions)
+  - Integrated test connection button in modal footer
+  - Enhanced button styling (destructive cancel, secondary test)
+  - Better visual hierarchy and accessibility
+- **Responsive Design**: Mobile and desktop compatible
+- **Local Storage**: Secure API key management
+
+### 🔄 Current Implementation
+
+- **Model Lists**: Simplified to contain only `value` properties for cleaner interface
+- **Modal Layout**: Test button moved to footer alongside cancel/save buttons
+- **Button Styling**: Improved visual feedback with appropriate variants
+- **Code Structure**: Clean, maintainable TypeScript with proper type safety
+
+### 🎯 Available Models
+
+**OpenRouter (Free Tier):**
+
+- DeepSeek Chat V3, DeepSeek R1 0528, Kimi K2, Qwen 3 235B A22B
+- Gemini 2.0 Flash Exp, MAI DS R1, Llama 3.3 70B Instruct
+- GPT OSS 20B, Qwen 3 14B, Mistral variants, Gemma 3 27B IT, GLM 4.5 Air
+
+**Google Gemini:**
+
+- Gemini 2.5 Flash (default), Gemini 2.5 Pro, Gemini 2.0 Flash
+
+---
+
 ## Deliverables
 
-- **Production-ready Next.js app** implementing all requirements.
+- **Production-ready Next.js app** implementing all requirements ✅
 - **README**:
 
-  - Setup & run instructions (using pnpm as package manager)
-  - Provider config (OpenRouter, Gemini)
-  - API key/model usage
+  - Setup & run instructions (using pnpm as package manager) ✅
+  - Provider config (OpenRouter, Gemini) ✅
+  - API key/model usage ✅
+  - Recent updates and improvements ✅
 
 - **Notes**:
+  - Provider adapter design implemented with consistent interface ✅
+  - JSON contract structure maintained for story continuity ✅
+  - pnpm used for all dependency management ✅
+  - UI/UX improvements completed for better user experience ✅
 
-  - Explain provider adapter design
-  - JSON contract structure + how it maintains story continuity
+---
 
-  - Use pnpm for all dependency management
+## Next Steps & Enhancements
+
+- **Performance Optimization**: Implement caching for LLM responses
+- **Additional Providers**: Support for more AI services (Claude, etc.)
+- **Advanced Features**: Save/load game states, achievements system
+- **Accessibility**: Screen reader optimization, high contrast mode
+- **Internationalization**: Multi-language support for global players
