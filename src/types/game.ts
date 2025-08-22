@@ -41,7 +41,7 @@ export interface LLMProvider {
 }
 
 export interface ProviderConfig {
-  provider: "openrouter" | "gemini" | "offline";
+  provider: "openrouter" | "gemini";
   apiBase?: string;
   apiKey?: string;
   model?: string;
@@ -60,4 +60,8 @@ export interface GameState {
   choiceHistory: Choice[];
   failureReason?: string;
   intro?: string;
+}
+
+export interface ISettings extends ProviderConfig {
+  selectedKeyName?: string;
 }

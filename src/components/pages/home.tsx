@@ -12,9 +12,20 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import * as LucideIcons from "lucide-react";
-const { Settings, X, Save, TestTube, Eye, EyeOff, Plus, Trash2, ChevronDown } =
-  LucideIcons;
+const {
+  Settings,
+  X,
+  Save,
+  TestTube,
+  Eye,
+  EyeOff,
+  Plus,
+  Trash2,
+  ChevronDown,
+  CircleX,
+} = LucideIcons;
 import { toast } from "sonner";
+import { ISettings } from "@/types/game";
 
 const DEFAULT_OPENROUTER_MODEL = "deepseek/deepseek-chat-v3-0324:free";
 const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
@@ -23,91 +34,57 @@ const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
 const OPENROUTER_MODELS = [
   {
     value: "deepseek/deepseek-chat-v3-0324:free",
-    label: "DeepSeek Chat V3 (Free)",
-    description: "Fast and free model",
   },
   {
     value: "deepseek/deepseek-r1-0528:free",
-    label: "DeepSeek R1 0528 (Free)",
-    description: "Fast and free model",
   },
   {
     value: "moonshotai/kimi-k2:free",
-    label: "Kimi K2 (Free)",
-    description: "Moonshot AI's instruction-tuned model",
   },
   {
     value: "qwen/qwen3-235b-a22b:free",
-    label: "Qwen 3 235B A22B (Free)",
-    description: "Alibaba's multilingual model",
   },
   {
     value: "google/gemini-2.0-flash-exp:free",
-    label: "Gemini 2.0 Flash Exp (Free)",
-    description: "Google's instruction-tuned model",
   },
   {
     value: "microsoft/mai-ds-r1:free",
-    label: "MAI DS R1 (Free)",
-    description: "Microsoft's instruction-tuned model",
   },
   {
     value: "meta-llama/llama-3.3-70b-instruct:free",
-    label: "Llama 3.3 70B Instruct (Free)",
-    description: "Meta's instruction-tuned model",
   },
   {
     value: "openai/gpt-oss-20b:free",
-    label: "GPT OSS 20B (Free)",
-    description: "OpenAI's instruction-tuned model",
   },
   {
     value: "qwen/qwen3-14b:free",
-    label: "Qwen 3 14B (Free)",
-    description: "Qwen's instruction-tuned model",
   },
   {
     value: "mistralai/mistral-small-3.2-24b-instruct:free",
-    label: "Mistral Small 3.2 24B Instruct (Free)",
-    description: "Mistral's instruction-tuned model",
   },
   {
     value: "mistralai/mistral-nemo:free",
-    label: "Mistral Nemo (Free)",
-    description: "Mistral's instruction-tuned model",
   },
   {
     value: "mistralai/mistral-small-3.1-24b-instruct:free",
-    label: "Mistral Small 3.1 24B Instruct (Free)",
-    description: "Mistral's instruction-tuned model",
   },
   {
     value: "google/gemma-3-27b-it:free",
-    label: "GemMMA 3 27B IT (Free)",
-    description: "Google's instruction-tuned model",
   },
   {
     value: "z-ai/glm-4.5-air:free",
-    label: "GLM 4.5 Air (Free)",
-    description: "ZAI's instruction-tuned model",
   },
 ];
 
 const GEMINI_MODELS = [
   {
     value: "gemini-2.5-flash",
-    label: "Gemini 2.5 Flash",
-    description: "Latest fast model with improved performance",
   },
   {
     value: "gemini-2.5-pro",
-    label: "Gemini 2.5 Pro",
-    description: "Most capable 2.5 series model",
   },
   {
     value: "gemini-2.0-flash",
-    label: "Gemini 2.0 Flash",
-    description: "Latest fast model with multimodal capabilities",
   },
 ];
 
@@ -119,12 +96,10 @@ function SettingsModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (settings: any) => void;
+  onSave: (settings: ISettings) => void;
 }) {
   // Load settings from localStorage on mount
-  const [provider, setProvider] = useState<"offline" | "openrouter" | "gemini">(
-    "offline"
-  );
+  const [provider, setProvider] = useState<ISettings["provider"]>("openrouter");
   const [apiKey, setApiKey] = useState("");
   const [model, setModel] = useState("");
   const [showApiKey, setShowApiKey] = useState(false);
@@ -143,7 +118,7 @@ function SettingsModal({
       if (savedSettings) {
         try {
           const parsed = JSON.parse(savedSettings);
-          setProvider(parsed.provider || "offline");
+          setProvider(parsed.provider || "openrouter");
           setApiKey(parsed.apiKey || "");
           setModel(parsed.model || "");
           setSelectedKeyName(parsed.selectedKeyName || "");
@@ -164,36 +139,24 @@ function SettingsModal({
   }, [isOpen]);
 
   // Handle provider change
-  const handleProviderChange = (
-    newProvider: "offline" | "openrouter" | "gemini"
-  ) => {
+  const handleProviderChange = (newProvider: "openrouter" | "gemini") => {
     setProvider(newProvider);
-    // Reset model when provider changes
-    if (newProvider === "offline") {
-      setModel("");
-    } else {
-      setModel(
-        newProvider === "openrouter"
-          ? DEFAULT_OPENROUTER_MODEL
-          : DEFAULT_GEMINI_MODEL
-      );
-    }
+    // Set default model when provider changes
+    setModel(
+      newProvider === "openrouter"
+        ? DEFAULT_OPENROUTER_MODEL
+        : DEFAULT_GEMINI_MODEL
+    );
   };
 
   // Auto-select default model when modal opens
   useEffect(() => {
-    if (!isOpen) return;
-    if (provider === "offline") {
-      if (model) setModel("");
-      return;
-    }
-    if (!model) {
-      setModel(
-        provider === "openrouter"
-          ? DEFAULT_OPENROUTER_MODEL
-          : DEFAULT_GEMINI_MODEL
-      );
-    }
+    if (!isOpen || model) return;
+    setModel(
+      provider === "openrouter"
+        ? DEFAULT_OPENROUTER_MODEL
+        : DEFAULT_GEMINI_MODEL
+    );
   }, [isOpen]);
 
   const handleSaveKey = () => {
@@ -233,8 +196,8 @@ function SettingsModal({
   const handleSave = () => {
     const settings = {
       provider,
-      apiKey: provider !== "offline" ? apiKey : "",
-      model: provider !== "offline" ? model : "",
+      apiKey: apiKey,
+      model: model,
       selectedKeyName,
     };
 
@@ -245,8 +208,8 @@ function SettingsModal({
     updateConfig({
       providerConfig: {
         provider,
-        apiKey: provider !== "offline" ? apiKey : "",
-        model: provider !== "offline" ? model : "",
+        apiKey: apiKey,
+        model: model,
       },
     });
 
@@ -256,7 +219,7 @@ function SettingsModal({
   };
 
   const handleTestConnection = async () => {
-    if (provider !== "offline" && apiKey) {
+    if (apiKey) {
       const testConfig = {
         provider,
         apiKey,
@@ -315,11 +278,10 @@ function SettingsModal({
                   value={provider}
                   onChange={(e) =>
                     handleProviderChange(
-                      e.target.value as "offline" | "openrouter" | "gemini"
+                      e.target.value as "openrouter" | "gemini"
                     )
                   }
                 >
-                  <option value="offline">🎮 Offline (No API needed)</option>
                   <option value="openrouter">🤖 OpenRouter</option>
                   <option value="gemini">✨ Google Gemini</option>
                 </select>
@@ -327,223 +289,193 @@ function SettingsModal({
               </div>
             </div>
 
-            {provider !== "offline" && (
-              <>
-                <div className="p-3 bg-[var(--accent)]/10 rounded pixel-border-sm">
-                  <p className="font-retro text-sm">
-                    💡{" "}
-                    {provider === "openrouter"
-                      ? "Get FREE API key at: openrouter.ai/keys"
-                      : "Get FREE API key at: aistudio.google.com/app/apikey"}
-                  </p>
-                </div>
+            <>
+              <div className="p-3 bg-[var(--accent)]/10 rounded pixel-border-sm">
+                <p className="font-retro text-sm">
+                  💡{" "}
+                  {provider === "openrouter"
+                    ? "Get FREE API key at: openrouter.ai/keys"
+                    : "Get FREE API key at: aistudio.google.com/app/apikey"}
+                </p>
+              </div>
 
-                <div>
-                  <label className="font-pixel text-sm mb-2 block text-[var(--primary)]">
-                    API Key Management
-                  </label>
+              <div>
+                <label className="font-pixel text-sm mb-2 block text-[var(--primary)]">
+                  API Key Management
+                </label>
 
-                  {/* Saved Keys Dropdown */}
-                  {Object.keys(savedKeys).length > 0 && (
-                    <div className="mb-3">
-                      <label className="font-retro text-xs mb-1 block text-[var(--muted-foreground)]">
-                        Select Saved Key:
-                      </label>
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <select
-                            className="w-full p-2 pr-12 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow text-sm"
-                            value={selectedKeyName}
-                            onChange={(e) => handleSelectKey(e.target.value)}
-                          >
-                            <option value="">Choose a saved key...</option>
-                            {Object.keys(savedKeys).map((keyName) => (
-                              <option key={keyName} value={keyName}>
-                                {keyName}
-                              </option>
-                            ))}
-                          </select>
-                          <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
-                        </div>
-                        {selectedKeyName && (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeleteKey(selectedKeyName)}
-                            className="px-2"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Current API Key Display/Input */}
+                {/* Saved Keys Dropdown */}
+                {Object.keys(savedKeys).length > 0 && (
                   <div className="mb-3">
                     <label className="font-retro text-xs mb-1 block text-[var(--muted-foreground)]">
-                      Current API Key:
+                      Select Saved Key:
                     </label>
-                    <div className="relative">
-                      <Input
-                        type={showApiKey ? "text" : "password"}
-                        placeholder="Enter or paste your API key here"
-                        value={apiKey}
-                        onChange={(e) => setApiKey(e.target.value)}
-                        className="font-mono pr-10"
-                      />
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                        onClick={() => setShowApiKey(!showApiKey)}
-                      >
-                        {showApiKey ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Add New Key Form */}
-                  {showNewKeyForm ? (
-                    <div className="p-3 bg-[var(--muted)]/10 pixel-border mb-3">
-                      <label className="font-retro text-xs mb-1 block text-[var(--muted-foreground)]">
-                        Save current key as:
-                      </label>
-                      <div className="flex gap-2">
-                        <Input
-                          type="text"
-                          placeholder="Enter key name (e.g., 'My OpenRouter Key')"
-                          value={keyName}
-                          onChange={(e) => setKeyName(e.target.value)}
-                          className="flex-1 text-sm"
-                        />
+                    <div className="flex gap-2">
+                      <div className="relative flex-1">
+                        <select
+                          className="w-full p-2 pr-12 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow text-sm"
+                          value={selectedKeyName}
+                          onChange={(e) => handleSelectKey(e.target.value)}
+                        >
+                          <option value="">Choose a saved key...</option>
+                          {Object.keys(savedKeys).map((keyName) => (
+                            <option key={keyName} value={keyName}>
+                              {keyName}
+                            </option>
+                          ))}
+                        </select>
+                        <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+                      </div>
+                      {selectedKeyName && (
                         <Button
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={handleSaveKey}
-                          disabled={!keyName.trim() || !apiKey.trim()}
+                          onClick={() => handleDeleteKey(selectedKeyName)}
+                          className="px-2"
                         >
-                          <Save className="h-4 w-4" />
+                          <Trash2 className="h-4 w-4" />
                         </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setShowNewKeyForm(false);
-                            setKeyName("");
-                          }}
-                        >
-                          <X className="h-4 w-4" />
-                        </Button>
-                      </div>
+                      )}
                     </div>
-                  ) : (
-                    apiKey && (
+                  </div>
+                )}
+
+                {/* Current API Key Display/Input */}
+                <div className="mb-3">
+                  <label className="font-retro text-xs mb-1 block text-[var(--muted-foreground)]">
+                    Current API Key:
+                  </label>
+                  <div className="relative">
+                    <Input
+                      type={showApiKey ? "text" : "password"}
+                      placeholder="Enter or paste your API key here"
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      className="font-mono pr-10"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowApiKey(!showApiKey)}
+                    >
+                      {showApiKey ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Add New Key Form */}
+                {showNewKeyForm ? (
+                  <div className="p-3 bg-[var(--muted)]/10 pixel-border mb-3">
+                    <label className="font-retro text-xs mb-1 block text-[var(--muted-foreground)]">
+                      Save current key as:
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        type="text"
+                        placeholder="Enter key name (e.g., 'My OpenRouter Key')"
+                        value={keyName}
+                        onChange={(e) => setKeyName(e.target.value)}
+                        className="flex-1 text-sm"
+                      />
                       <Button
                         type="button"
                         variant="outline"
                         size="sm"
-                        onClick={() => setShowNewKeyForm(true)}
-                        className="mb-3"
+                        onClick={handleSaveKey}
+                        disabled={!keyName.trim() || !apiKey.trim()}
                       >
-                        <Plus className="mr-2 h-4 w-4" />
-                        Save this key
+                        <Save className="h-4 w-4" />
                       </Button>
-                    )
-                  )}
-
-                  <p className="font-retro text-xs text-[var(--muted-foreground)]">
-                    🔒 Keys are saved locally in your browser only
-                  </p>
-                </div>
-
-                <div>
-                  <label className="font-pixel text-sm mb-2 block">
-                    Model (Optional)
-                  </label>
-                  <div className="relative">
-                    <select
-                      className="w-full p-2 pr-12 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow mb-2"
-                      value={model}
-                      onChange={(e) => setModel(e.target.value)}
-                    >
-                      {(provider === "openrouter"
-                        ? OPENROUTER_MODELS
-                        : GEMINI_MODELS
-                      ).map((modelOption) => (
-                        <option
-                          key={modelOption.value}
-                          value={modelOption.value}
-                        >
-                          {modelOption.value}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
-                  </div>
-                  {model && (
-                    <div className="p-2 bg-[var(--muted)]/20 pixel-border text-sm">
-                      <p className="font-retro text-[var(--muted-foreground)]">
-                        {(provider === "openrouter"
-                          ? OPENROUTER_MODELS
-                          : GEMINI_MODELS
-                        ).find((m) => m.value === model)?.description ||
-                          "Selected model"}
-                      </p>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setShowNewKeyForm(false);
+                          setKeyName("");
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
                     </div>
-                  )}
-                  <Input
-                    type="text"
-                    placeholder="Or enter custom model name"
-                    value={model}
-                    onChange={(e) => setModel(e.target.value)}
-                    className="font-mono text-sm mt-2"
-                  />
-                </div>
+                  </div>
+                ) : (
+                  apiKey && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowNewKeyForm(true)}
+                      className="mb-3"
+                    >
+                      <Plus className="mr-2 h-4 w-4" />
+                      Save this key
+                    </Button>
+                  )
+                )}
 
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleTestConnection}
-                  disabled={!apiKey}
-                >
-                  <TestTube className="mr-2 h-4 w-4" />
-                  Test Connection
-                </Button>
-              </>
-            )}
-
-            {provider === "offline" && (
-              <div className="p-3 bg-[var(--primary)]/10 rounded pixel-border">
-                <p className="font-retro text-sm">
-                  ✅ Offline mode uses pre-written adventures. No API or
-                  internet needed!
-                </p>
-                <p className="font-retro text-xs mt-2 text-[var(--muted-foreground)]">
-                  Perfect for playing without any setup or API keys.
+                <p className="font-retro text-xs text-[var(--muted-foreground)]">
+                  🔒 Keys are saved locally in your browser only
                 </p>
               </div>
-            )}
+
+              <div>
+                <label className="font-pixel text-sm mb-2 block">
+                  Model (Optional)
+                </label>
+                <div className="relative">
+                  <select
+                    className="w-full p-2 pr-12 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow mb-2"
+                    value={model}
+                    onChange={(e) => setModel(e.target.value)}
+                  >
+                    {(provider === "openrouter"
+                      ? OPENROUTER_MODELS
+                      : GEMINI_MODELS
+                    ).map((modelOption) => (
+                      <option key={modelOption.value} value={modelOption.value}>
+                        {modelOption.value}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+                </div>
+                <Input
+                  type="text"
+                  placeholder="Or enter custom model name"
+                  value={model}
+                  onChange={(e) => setModel(e.target.value)}
+                  className="font-mono text-sm mt-2"
+                />
+              </div>
+            </>
           </div>
 
           {/* Modal Footer */}
           <div className="flex gap-2 p-4 border-t-2 border-[var(--border)]">
-            <Button variant="outline" className="flex-1" onClick={onClose}>
+            <Button variant="destructive" className="flex-1" onClick={onClose}>
+              <CircleX className="mr-2 h-4 w-4" />
               Cancel
             </Button>
-            <Button
-              className="flex-1"
-              onClick={handleSave}
-              disabled={provider !== "offline" && !apiKey}
-            >
+            {model && (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={handleTestConnection}
+                disabled={!apiKey}
+              >
+                <TestTube className="mr-2 h-4 w-4" />
+                Test Connection
+              </Button>
+            )}
+            <Button className="flex-1" onClick={handleSave} disabled={!apiKey}>
               <Save className="mr-2 h-4 w-4" />
               Save Settings
             </Button>
@@ -557,7 +489,9 @@ function SettingsModal({
 export function HomePage() {
   const { gameConfig, updateConfig, startGame } = useGame();
   const [showSettings, setShowSettings] = useState(false);
-  const [currentSettings, setCurrentSettings] = useState<any>(null);
+  const [currentSettings, setCurrentSettings] = useState<ISettings | null>(
+    null
+  );
 
   // Load settings from localStorage on component mount
   useEffect(() => {
@@ -568,20 +502,15 @@ export function HomePage() {
         setCurrentSettings(parsed);
 
         // Apply saved settings to game config immediately
-        const providerConfig =
-          parsed.provider !== "offline" && parsed.apiKey
-            ? {
-                provider: parsed.provider as "openrouter" | "gemini",
-                apiKey: parsed.apiKey,
-                model:
-                  parsed.model ||
-                  (parsed.provider === "openrouter"
-                    ? DEFAULT_OPENROUTER_MODEL
-                    : DEFAULT_GEMINI_MODEL),
-              }
-            : {
-                provider: "offline" as const,
-              };
+        const providerConfig = {
+          provider: parsed.provider as "openrouter" | "gemini",
+          apiKey: parsed.apiKey,
+          model:
+            parsed.model ||
+            (parsed.provider === "openrouter"
+              ? DEFAULT_OPENROUTER_MODEL
+              : DEFAULT_GEMINI_MODEL),
+        };
 
         updateConfig({ providerConfig });
       } catch (e) {
@@ -591,40 +520,34 @@ export function HomePage() {
   }, [updateConfig]);
 
   const handleStartGame = async () => {
-    // Use saved settings or default to offline
-    const settings = currentSettings || { provider: "offline" };
+    if (!currentSettings || !currentSettings.apiKey) {
+      toast.error("Please configure your API settings first");
+      setShowSettings(true);
+      return;
+    }
 
-    const providerConfig =
-      settings.provider !== "offline" && settings.apiKey
-        ? {
-            provider: settings.provider as "openrouter" | "gemini",
-            apiKey: settings.apiKey,
-            model:
-              settings.model ||
-              (settings.provider === "openrouter"
-                ? DEFAULT_OPENROUTER_MODEL
-                : DEFAULT_GEMINI_MODEL),
-          }
-        : {
-            provider: "offline" as const,
-          };
+    const providerConfig = {
+      provider: currentSettings.provider as "openrouter" | "gemini",
+      apiKey: currentSettings.apiKey,
+      model:
+        currentSettings.model ||
+        (currentSettings.provider === "openrouter"
+          ? DEFAULT_OPENROUTER_MODEL
+          : DEFAULT_GEMINI_MODEL),
+    };
 
-    // Update config and wait a moment for it to take effect
     updateConfig({ providerConfig });
-
-    // Small delay to ensure config is updated
     await new Promise((resolve) => setTimeout(resolve, 100));
-
     await startGame();
   };
 
-  const handleSaveSettings = (settings: any) => {
+  const handleSaveSettings = (settings: ISettings) => {
     setCurrentSettings(settings);
   };
 
   // Determine button text based on current settings
   const getStartButtonText = () => {
-    if (!currentSettings || currentSettings.provider === "offline") {
+    if (!currentSettings) {
       return "🎮 START ADVENTURE (Offline Mode)";
     }
     if (currentSettings.apiKey) {
@@ -636,7 +559,7 @@ export function HomePage() {
   };
 
   const canStart = () => {
-    if (!currentSettings || currentSettings.provider === "offline") return true;
+    if (!currentSettings) return true;
     return !!currentSettings.apiKey;
   };
 
@@ -710,9 +633,7 @@ export function HomePage() {
                       Mode:
                     </span>{" "}
                     <span className="text-[var(--primary)]">
-                      {currentSettings.provider === "offline"
-                        ? "Offline"
-                        : currentSettings.provider === "openrouter"
+                      {currentSettings.provider === "openrouter"
                         ? `OpenRouter AI (${
                             currentSettings.model || "default"
                           })`
@@ -722,13 +643,12 @@ export function HomePage() {
                           })`
                         : "Offline"}
                     </span>
-                    {currentSettings.provider !== "offline" &&
-                      currentSettings.apiKey && (
-                        <span className="text-[var(--accent)]">
-                          {" "}
-                          ✓ Configured
-                        </span>
-                      )}
+                    {currentSettings.apiKey && (
+                      <span className="text-[var(--accent)]">
+                        {" "}
+                        ✓ Configured
+                      </span>
+                    )}
                   </p>
                 </div>
               )}

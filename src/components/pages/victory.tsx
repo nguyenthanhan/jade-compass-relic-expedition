@@ -24,11 +24,7 @@ export function VictoryPage() {
           </h1>
 
           <p className="font-pixel text-xl text-[var(--accent)]">
-            Chúc mừng bạn đã tìm thấy một chiếc nồi.
-          </p>
-
-          <p className="font-retro text-sm text-[var(--muted-foreground)]">
-            (có cái nồi)
+            Congratulations! You have found the pot.
           </p>
         </div>
 
