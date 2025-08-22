@@ -11,17 +11,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import {
-  Settings,
-  X,
-  Save,
-  TestTube,
-  Eye,
-  EyeOff,
-  Plus,
-  Trash2,
-  ChevronDown,
-} from "lucide-react";
+import * as LucideIcons from "lucide-react";
+const { Settings, X, Save, TestTube, Eye, EyeOff, Plus, Trash2, ChevronDown } =
+  LucideIcons;
 import { toast } from "sonner";
 
 const DEFAULT_OPENROUTER_MODEL = "deepseek/deepseek-chat-v3-0324:free";
@@ -50,19 +42,49 @@ const OPENROUTER_MODELS = [
     description: "Alibaba's multilingual model",
   },
   {
+    value: "google/gemini-2.0-flash-exp:free",
+    label: "Gemini 2.0 Flash Exp (Free)",
+    description: "Google's instruction-tuned model",
+  },
+  {
+    value: "microsoft/mai-ds-r1:free",
+    label: "MAI DS R1 (Free)",
+    description: "Microsoft's instruction-tuned model",
+  },
+  {
     value: "meta-llama/llama-3.3-70b-instruct:free",
     label: "Llama 3.3 70B Instruct (Free)",
     description: "Meta's instruction-tuned model",
   },
   {
+    value: "openai/gpt-oss-20b:free",
+    label: "GPT OSS 20B (Free)",
+    description: "OpenAI's instruction-tuned model",
+  },
+  {
+    value: "qwen/qwen3-14b:free",
+    label: "Qwen 3 14B (Free)",
+    description: "Qwen's instruction-tuned model",
+  },
+  {
+    value: "mistralai/mistral-small-3.2-24b-instruct:free",
+    label: "Mistral Small 3.2 24B Instruct (Free)",
+    description: "Mistral's instruction-tuned model",
+  },
+  {
+    value: "mistralai/mistral-nemo:free",
+    label: "Mistral Nemo (Free)",
+    description: "Mistral's instruction-tuned model",
+  },
+  {
+    value: "mistralai/mistral-small-3.1-24b-instruct:free",
+    label: "Mistral Small 3.1 24B Instruct (Free)",
+    description: "Mistral's instruction-tuned model",
+  },
+  {
     value: "google/gemma-3-27b-it:free",
     label: "GemMMA 3 27B IT (Free)",
     description: "Google's instruction-tuned model",
-  },
-  {
-    value: "meta-llama/llama-3.1-405b-instruct:free",
-    label: "Llama 3.1 405B Instruct (Free)",
-    description: "Meta's instruction-tuned model",
   },
   {
     value: "z-ai/glm-4.5-air:free",
@@ -141,20 +163,38 @@ function SettingsModal({
     }
   }, [isOpen]);
 
-  // Auto-select default model when a provider is chosen and no model is set
+  // Handle provider change
+  const handleProviderChange = (
+    newProvider: "offline" | "openrouter" | "gemini"
+  ) => {
+    setProvider(newProvider);
+    // Reset model when provider changes
+    if (newProvider === "offline") {
+      setModel("");
+    } else {
+      setModel(
+        newProvider === "openrouter"
+          ? DEFAULT_OPENROUTER_MODEL
+          : DEFAULT_GEMINI_MODEL
+      );
+    }
+  };
+
+  // Auto-select default model when modal opens
   useEffect(() => {
     if (!isOpen) return;
     if (provider === "offline") {
-      // Clear model when offline
       if (model) setModel("");
       return;
     }
     if (!model) {
       setModel(
-        provider === "openrouter" ? DEFAULT_OPENROUTER_MODEL : DEFAULT_GEMINI_MODEL
+        provider === "openrouter"
+          ? DEFAULT_OPENROUTER_MODEL
+          : DEFAULT_GEMINI_MODEL
       );
     }
-  }, [provider, isOpen]);
+  }, [isOpen]);
 
   const handleSaveKey = () => {
     if (!keyName.trim() || !apiKey.trim()) {
@@ -200,6 +240,15 @@ function SettingsModal({
 
     // Save to localStorage
     localStorage.setItem("jadeCompassSettings", JSON.stringify(settings));
+
+    // Update the game configuration with the new provider and model
+    updateConfig({
+      providerConfig: {
+        provider,
+        apiKey: provider !== "offline" ? apiKey : "",
+        model: provider !== "offline" ? model : "",
+      },
+    });
 
     // Pass to parent
     onSave(settings);
@@ -265,7 +314,7 @@ function SettingsModal({
                   className="w-full p-2 pr-12 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow"
                   value={provider}
                   onChange={(e) =>
-                    setProvider(
+                    handleProviderChange(
                       e.target.value as "offline" | "openrouter" | "gemini"
                     )
                   }
@@ -285,7 +334,7 @@ function SettingsModal({
                     💡{" "}
                     {provider === "openrouter"
                       ? "Get FREE API key at: openrouter.ai/keys"
-                      : "Get FREE API key at: makersuite.google.com/app/apikey"}
+                      : "Get FREE API key at: aistudio.google.com/app/apikey"}
                   </p>
                 </div>
 
@@ -600,7 +649,9 @@ export function HomePage() {
             <h1 className="font-pixel text-3xl text-[var(--primary)] float">
               JADE COMPASS
             </h1>
-            <p className="font-pixel text-lg text-[var(--accent)]">Relic Run</p>
+            <p className="font-pixel text-lg text-[var(--accent)]">
+              Relic Expedition
+            </p>
             <p className="font-retro text-2xl text-[var(--muted-foreground)]">
               A treasure hunting adventure awaits...
             </p>
@@ -615,35 +666,39 @@ export function HomePage() {
             <CardContent className="space-y-6">
               {/* Game Settings */}
               <div className="space-y-4">
-                <div>
-                  <label className="font-pixel text-sm mb-2 block">
-                    Rounds (2-10)
-                  </label>
-                  <Input
-                    type="number"
-                    min="2"
-                    max="10"
-                    value={gameConfig.rounds}
-                    onChange={(e) =>
-                      updateConfig({ rounds: parseInt(e.target.value) || 5 })
-                    }
-                  />
-                </div>
-                <div>
-                  <label className="font-pixel text-sm mb-2 block">
-                    Choices per Round (2-5)
-                  </label>
-                  <Input
-                    type="number"
-                    min="2"
-                    max="5"
-                    value={gameConfig.choicesPerRound}
-                    onChange={(e) =>
-                      updateConfig({
-                        choicesPerRound: parseInt(e.target.value) || 3,
-                      })
-                    }
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="font-pixel text-sm mb-2 block">
+                      Rounds (2-10)
+                    </label>
+                    <Input
+                      type="number"
+                      min="2"
+                      max="10"
+                      value={gameConfig.rounds}
+                      onChange={(e) =>
+                        updateConfig({ rounds: parseInt(e.target.value) || 5 })
+                      }
+                      className="w-full"
+                    />
+                  </div>
+                  <div>
+                    <label className="font-pixel text-sm mb-2 block">
+                      Choices per Round (2-5)
+                    </label>
+                    <Input
+                      type="number"
+                      min="2"
+                      max="5"
+                      value={gameConfig.choicesPerRound}
+                      onChange={(e) =>
+                        updateConfig({
+                          choicesPerRound: parseInt(e.target.value) || 3,
+                        })
+                      }
+                      className="w-full"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -658,8 +713,14 @@ export function HomePage() {
                       {currentSettings.provider === "offline"
                         ? "Offline"
                         : currentSettings.provider === "openrouter"
-                        ? "OpenRouter AI"
-                        : "Google Gemini AI"}
+                        ? `OpenRouter AI (${
+                            currentSettings.model || "default"
+                          })`
+                        : currentSettings.provider === "gemini"
+                        ? `Google Gemini AI (${
+                            currentSettings.model || "default"
+                          })`
+                        : "Offline"}
                     </span>
                     {currentSettings.provider !== "offline" &&
                       currentSettings.apiKey && (

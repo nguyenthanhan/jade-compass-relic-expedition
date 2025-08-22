@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Jade Compass: Relic Run",
+  title: "Jade Compass: Relic Expedition",
   description: "A treasure hunting adventure game",
 };
 

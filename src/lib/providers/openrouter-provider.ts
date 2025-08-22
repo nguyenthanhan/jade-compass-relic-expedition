@@ -1,51 +1,30 @@
-import { GameRound, NarrativeState, FullStoryResponse } from "@/types/game";
+import { OpenAI } from "openai";
+import { FullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base-provider";
 
 export class OpenRouterProvider extends BaseLLMProvider {
   name = "OpenRouter";
+  private client: OpenAI;
 
   constructor(
     apiKey: string,
     model: string = "meta-llama/llama-3.2-3b-instruct:free"
   ) {
     super(apiKey, "https://openrouter.ai/api/v1", model);
-  }
 
-  async getRoundEvents(
-    narrativeState: NarrativeState,
-    round: number,
-    choicesCount: number,
-    seed?: string
-  ): Promise<GameRound> {
-    const requestId = this.generateRequestId();
-    const systemPrompt = this.createSystemPrompt();
-    const prompt = this.createRoundPrompt(narrativeState, round, choicesCount);
-
-    this.logRequest("getRoundEvents", requestId, prompt, systemPrompt, {
-      narrativeState,
-      round,
-      choicesCount,
-      seed,
-    });
-
-    const startTime = Date.now();
-    try {
-      const response = await this.makeRequest(prompt, systemPrompt);
-      const responseTime = Date.now() - startTime;
-
-      this.logResponse(requestId, response, responseTime);
-
-      return this.parseJSONResponse(response);
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      this.logResponse(
-        requestId,
-        undefined,
-        responseTime,
-        (error as Error).message
-      );
-      throw error;
+    if (!apiKey) {
+      throw new Error("OpenRouter API key is required");
     }
+
+    this.client = new OpenAI({
+      apiKey: this.apiKey,
+      baseURL: this.apiBase,
+      dangerouslyAllowBrowser: true,
+      defaultHeaders: {
+        //   "HTTP-Referer": "https://jade-compass.vercel.app",
+        "X-Title": "Jade Compass: Relic Expedition",
+      },
+    });
   }
 
   async generateFullStory(
@@ -54,84 +33,78 @@ export class OpenRouterProvider extends BaseLLMProvider {
     seed?: string
   ): Promise<FullStoryResponse> {
     const requestId = this.generateRequestId();
-    const systemPrompt = this.createFullStorySystemPrompt();
+    const systemPrompt = this.createFullStorySystemPrompt({
+      contentLanguage: "Vietnamese",
+    });
     const prompt = this.createFullStoryPrompt(totalRounds, choicesPerRound);
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {
       totalRounds,
       choicesPerRound,
       seed,
+      model: this.model,
     });
 
     const startTime = Date.now();
     try {
-      const response = await this.makeRequest(prompt, systemPrompt);
-      const responseTime = Date.now() - startTime;
+      if (!this.apiKey) {
+        throw new Error("OpenRouter API key is not configured");
+      }
 
-      this.logResponse(requestId, response, responseTime, undefined, {
-        estimatedTokens: Math.floor(response.length / 4),
-      });
-
-      return this.parseJSONResponse(response);
-    } catch (error) {
-      const responseTime = Date.now() - startTime;
-      this.logResponse(
-        requestId,
-        undefined,
-        responseTime,
-        (error as Error).message
-      );
-      throw error;
-    }
-  }
-
-  async testConnection(): Promise<boolean> {
-    try {
-      const response = await fetch(`${this.apiBase}/models`, {
-        headers: {
-          Authorization: `Bearer ${this.apiKey}`,
-          "HTTP-Referer": "https://jade-compass.vercel.app",
-          "X-Title": "Jade Compass: Relic Run",
-        },
-      });
-
-      return response.ok;
-    } catch (error) {
-      console.error("OpenRouter connection test failed:", error);
-      return false;
-    }
-  }
-
-  protected async makeRequest(
-    prompt: string,
-    systemPrompt: string
-  ): Promise<string> {
-    const response = await fetch(`${this.apiBase}/chat/completions`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${this.apiKey}`,
-        "HTTP-Referer": "https://jade-compass.vercel.app",
-        "X-Title": "Jade Compass: Relic Run",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      const response = await this.client.chat.completions.create({
         model: this.model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt },
         ],
-        temperature: 0.8,
-        max_tokens: 2000,
-        response_format: { type: "json_object" },
-      }),
-    });
+        temperature: 0.7,
+        seed: seed ? parseInt(seed) : undefined,
+      });
 
-    if (!response.ok) {
-      const error = await response.text();
-      throw new Error(`OpenRouter API error: ${error}`);
+      const content = response.choices[0]?.message?.content;
+      if (!content) {
+        throw new Error("No content in response from OpenRouter");
+      }
+
+      const responseTime = Date.now() - startTime;
+      this.logResponse(requestId, content, responseTime, undefined, {
+        model: this.model,
+        estimatedTokens:
+          response.usage?.total_tokens || Math.floor(content.length / 4),
+      });
+
+      const parsedResponse = this.parseJSONResponse(content);
+
+      if (
+        !parsedResponse ||
+        !parsedResponse.rounds ||
+        !Array.isArray(parsedResponse.rounds)
+      ) {
+        throw new Error("Invalid response format from OpenRouter");
+      }
+
+      return parsedResponse;
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+
+      this.logResponse(requestId, undefined, responseTime, errorMessage, {
+        model: this.model,
+        error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
+      });
+
+      throw new Error(`Failed to generate story: ${errorMessage}`);
     }
+  }
 
-    const data = await response.json();
-    return data.choices[0].message.content;
+  async testConnection(): Promise<boolean> {
+    try {
+      await this.client.models.retrieve(this.model);
+      return true;
+    } catch (error) {
+      console.error("Connection test failed:", error);
+      return false;
+    }
   }
 }

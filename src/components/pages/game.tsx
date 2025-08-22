@@ -2,40 +2,31 @@
 
 import React, { useEffect, useState } from "react";
 import { useGame } from "@/contexts/game-context";
-import { useRoundData } from "@/hooks/use-round-data";
 import { Choice } from "@/types/game";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 export function GamePage() {
-  const { gameState, gameConfig, makeChoice } = useGame();
-  const { roundData, loading, error, retry } = useRoundData();
+  const { gameState, gameConfig, makeChoice, currentRoundData, isLoading } =
+    useGame();
+
   const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  console.log("roundData", roundData);
-  console.log("gameState", gameState);
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      if (!roundData || isProcessing) return;
+      if (!currentRoundData || isProcessing) return;
 
       const key = parseInt(e.key);
-      if (key >= 1 && key <= roundData.choices.length) {
-        const choice = roundData.choices[key - 1];
+      if (key >= 1 && key <= currentRoundData.choices.length) {
+        const choice = currentRoundData.choices[key - 1];
         handleChoice(choice);
       }
     };
 
     window.addEventListener("keypress", handleKeyPress);
     return () => window.removeEventListener("keypress", handleKeyPress);
-  }, [roundData, isProcessing]);
+  }, [currentRoundData, isProcessing]);
 
   const handleChoice = async (choice: Choice) => {
     if (isProcessing) return;
@@ -50,7 +41,7 @@ export function GamePage() {
     setSelectedChoice(null);
   };
 
-  if (loading && !roundData) {
+  if (isLoading || !currentRoundData) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -83,14 +74,14 @@ export function GamePage() {
                   Location:{" "}
                 </span>
                 <span className="text-[var(--accent)]">
-                  {roundData?.narrative_state.location ||
+                  {currentRoundData?.narrative_state.location ||
                     gameState.narrativeState.location}
                 </span>
               </div>
               <div>
                 <span className="text-[var(--muted-foreground)]">Status: </span>
                 <span className="text-[var(--primary)]">
-                  {roundData?.narrative_state.status ||
+                  {currentRoundData?.narrative_state.status ||
                     gameState.narrativeState.status}
                 </span>
               </div>
@@ -98,7 +89,7 @@ export function GamePage() {
                 <span className="text-[var(--muted-foreground)]">Items: </span>
                 <span>
                   {(
-                    roundData?.narrative_state.items ||
+                    currentRoundData?.narrative_state.items ||
                     gameState.narrativeState.items
                   ).join(", ") || "None"}
                 </span>
@@ -108,7 +99,7 @@ export function GamePage() {
         </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {roundData?.choices.map((choice, index) => (
+          {currentRoundData?.choices.map((choice, index) => (
             <Card
               key={choice.id}
               className={`cursor-pointer transition-all hover:scale-105 ${

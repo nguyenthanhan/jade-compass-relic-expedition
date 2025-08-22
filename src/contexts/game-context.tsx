@@ -70,6 +70,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
     undefined
   );
 
+  console.log("roundData", currentRoundData);
+  console.log("gameState", gameState);
+
   useEffect(() => {
     if (
       allRounds &&
@@ -114,7 +117,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const provider = ProviderFactory.create(gameConfig.providerConfig);
       setIsLoading(true);
       setLoadingMessage("Generating your adventure…");
-      toast.info("Generating your complete adventure...", { duration: 3000 });
 
       const storyData = await provider.generateFullStory(
         gameConfig.rounds,
@@ -216,7 +218,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       {isLoading && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
           <div className="bg-[var(--background)] pixel-border pixel-shadow px-6 py-5 text-center">
-            <div className="font-pixel text-[var(--primary)] mb-3">LOADING…</div>
+            <div className="font-pixel text-[var(--primary)] mb-3">
+              LOADING…
+            </div>
             <div className="flex gap-1 justify-center mb-2">
               <span className="w-3 h-3 bg-[var(--primary)] animate-bounce [animation-delay:-0.2s]"></span>
               <span className="w-3 h-3 bg-[var(--primary)]/80 animate-bounce [animation-delay:-0.1s]"></span>

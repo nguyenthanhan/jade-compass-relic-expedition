@@ -31,12 +31,7 @@ export interface FullStoryResponse {
 
 export interface LLMProvider {
   name: string;
-  getRoundEvents(
-    narrativeState: NarrativeState,
-    round: number,
-    choicesCount: number,
-    seed?: string
-  ): Promise<GameRound>;
+
   generateFullStory(
     totalRounds: number,
     choicesPerRound: number,

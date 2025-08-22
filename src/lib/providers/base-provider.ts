@@ -18,12 +18,6 @@ export abstract class BaseLLMProvider implements LLMProvider {
     this.model = model;
   }
 
-  abstract getRoundEvents(
-    narrativeState: NarrativeState,
-    round: number,
-    choicesCount: number,
-    seed?: string
-  ): Promise<GameRound>;
   abstract testConnection(): Promise<boolean>;
 
   async generateFullStory(
@@ -31,32 +25,32 @@ export abstract class BaseLLMProvider implements LLMProvider {
     choicesPerRound: number,
     seed?: string
   ): Promise<FullStoryResponse> {
-    const systemPrompt = this.createFullStorySystemPrompt();
-    const prompt = this.createFullStoryPrompt(totalRounds, choicesPerRound);
-
-    const response = await this.makeRequest(prompt, systemPrompt);
-    return this.parseJSONResponse(response);
+    return this.parseJSONResponse("");
   }
 
-  protected createFullStorySystemPrompt(): string {
-    return `You are a narrative designer for a treasure-hunting adventure game called "Jade Compass: Relic Run".
-    
+  protected createFullStorySystemPrompt({
+    contentLanguage,
+  }: {
+    contentLanguage: string;
+  }): string {
+    return `You are a narrative designer for a treasure hunting adventure game called "Jade Compass: Relic Expedition".
+
 Your task is to create a COMPLETE, CONNECTED story spanning multiple rounds. The story must:
-- Have narrative continuity between rounds
+- Maintain continuity between rounds
 - Build tension as the player progresses
 - Reference previous events and choices
 - Culminate in finding the legendary Jade Compass
-- Language in Vietnamese
+- Be written ENTIRELY in ${contentLanguage}
 
-Your response must be STRICT JSON only - no prose, no markdown, no explanations.
+Your response MUST BE IN STANDARD JSON FORMAT - no plain text, no markdown, no additional explanations.
 
 The game theme is ALWAYS treasure hunting with elements like:
-- Ancient ruins, hidden temples, mysterious caves
-- Maps, compasses, artifacts, relics
-- Traps, puzzles, rival hunters
-- Exotic locations that connect logically
+- Ancient ruins, mysterious temples, hidden caves,...
+- Maps, compasses, artifacts, relics,...
+- Traps, puzzles, rival treasure hunters,...
+- Exotic locations with logical connections,...
 
-Each round should BUILD on the previous one, creating a cohesive adventure story.`;
+Each round should BUILD upon the previous one, creating a cohesive adventure story.`;
   }
 
   protected createFullStoryPrompt(
@@ -66,67 +60,51 @@ Each round should BUILD on the previous one, creating a cohesive adventure story
     return `Generate a complete ${totalRounds}-round treasure hunting adventure.
 
 Requirements:
-1. Create a compelling intro that sets up the entire adventure
-2. Generate ${totalRounds} connected rounds that form a complete story arc
+1. Create a compelling introduction that sets up the adventure
+2. Generate ${totalRounds} interconnected rounds forming a complete story arc
 3. Each round must have exactly ${choicesPerRound} choices
-4. Exactly ONE choice per round must be correct (is_correct: true)
-5. Randomize the order of choices! The correct choice should appear in different positions (first, second, third, etc.) across different rounds.
-6. The narrative must progress logically from round to round
-7. Later rounds should reference or build upon earlier events
-8. The final round should culminate in finding the Jade Compass
-9. Language in Vietnamese
+4. Only ONE correct choice (is_correct: true) per round
+5. Ensure the correct answer position varies between rounds
+6. Each choice must have clear consequences that affect the story
+7. Maintain consistency in setting and characters
+8. Include rich descriptions of locations, characters, and items
+9. Each round should meaningfully advance the plot
+10. The ending should be satisfying and consistent with the story flow
 
-Return ONLY a JSON object with this EXACT structure:
+Response Format (JSON only):
 {
-  "intro": "A compelling 1-2 sentence introduction that sets up the entire adventure",
-  "overall_theme": "The overarching story theme (e.g., 'Lost Temple of the Jade Emperor')",
+  "intro": "Compelling introduction to the adventure",
+  "overall_theme": "Main theme of the story",
   "rounds": [
     {
-      "round": 1,
+      "id": "r1",
+      "title": "Round 1 Title",
+      "description": "Detailed description of the current situation",
       "narrative_state": {
-        "location": "Starting location",
-        "status": "Character condition",
-        "items": ["starting", "inventory"],
-        "story_progress": "What has happened so far"
+        "location": "Current location",
+        "status": "Character's current condition",
+        "items": ["current", "inventory", "items"],
+        "story_progress": "Summary of story events up to this point"
       },
       "choices": [
         {
           "id": "r1_c1",
-          "title": "First choice title",
-          "summary": "What happens if you choose this (1-2 sentences)",
+          "title": "Choice 1 Title",
+          "summary": "What happens if this option is chosen (1-2 sentences)",
           "is_correct": true,
-          "consequence": "How this advances the story"
+          "consequence": "How this choice impacts the story"
         },
         {
           "id": "r1_c2",
-          "title": "Second choice title",
-          "summary": "What happens if you choose this",
+          "title": "Choice 2 Title",
+          "summary": "What happens if this option is chosen",
           "is_correct": false,
-          "consequence": "How this leads to failure"
+          "consequence": "Why this is not the optimal choice"
         }
       ]
     }
   ]
 }`;
-  }
-
-  protected createSystemPrompt(): string {
-    return `You are a narrative designer for a treasure-hunting adventure game.`;
-  }
-
-  protected createRoundPrompt(
-    narrativeState: NarrativeState,
-    round: number,
-    choicesCount: number
-  ): string {
-    return `Generate round ${round}`;
-  }
-
-  protected async makeRequest(
-    prompt: string,
-    systemPrompt: string
-  ): Promise<any> {
-    throw new Error("makeRequest must be implemented by subclass");
   }
 
   protected parseJSONResponse(text: string): any {
@@ -171,9 +149,7 @@ Return ONLY a JSON object with this EXACT structure:
     if (error) {
       logger.error("error:", error);
     } else {
-      // Trim very long payloads in dev console readability
-      const preview = response && response.length > 800 ? response.slice(0, 800) + "…" : response;
-      logger.debug("response:", preview);
+      logger.debug("response:", response);
     }
     logger.groupEnd();
   }
