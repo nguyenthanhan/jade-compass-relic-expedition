@@ -13,8 +13,6 @@ import {
   GameState,
   ProviderConfig,
   Choice,
-  NarrativeState,
-  LLMProvider,
   GameRound,
 } from "@/types/game";
 import { ProviderFactory } from "@/lib/providers/provider-factory";
@@ -26,14 +24,14 @@ interface GameContextType {
   sessionSeed: string;
   allRounds: GameRound[] | null;
   currentRoundData: GameRound | null;
+  isLoading: boolean;
+  loadingMessage?: string;
   updateConfig: (config: Partial<GameConfig>) => void;
   startGame: () => Promise<void>;
   makeChoice: (choice: Choice) => Promise<void>;
   resetGame: () => void;
   testConnection: () => Promise<boolean>;
   testConnectionWith: (config: ProviderConfig) => Promise<boolean>;
-  isLoading: boolean;
-  loadingMessage?: string;
 }
 
 const defaultConfig: GameConfig = {
@@ -69,9 +67,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [loadingMessage, setLoadingMessage] = useState<string | undefined>(
     undefined
   );
-
-  console.log("roundData", currentRoundData);
-  console.log("gameState", gameState);
 
   useEffect(() => {
     if (
@@ -140,8 +135,6 @@ export function GameProvider({ children }: { children: ReactNode }) {
         choiceHistory: [],
         intro: storyData.intro,
       });
-
-      toast.success("Adventure generated successfully!");
     } catch (error) {
       toast.error("Failed to start game: " + (error as Error).message);
       console.error("Start game error:", error);
@@ -197,22 +190,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCurrentRoundData(null);
   }, []);
 
+  const value = {
+    gameConfig,
+    gameState,
+    sessionSeed,
+    allRounds,
+    currentRoundData,
+    isLoading,
+    loadingMessage,
+  };
+
+  console.log("value", value);
+
   return (
     <GameContext.Provider
       value={{
-        gameConfig,
-        gameState,
-        sessionSeed,
-        allRounds,
-        currentRoundData,
+        ...value,
         updateConfig,
         startGame,
         makeChoice,
         resetGame,
         testConnection,
         testConnectionWith,
-        isLoading,
-        loadingMessage,
       }}
     >
       {isLoading && (
