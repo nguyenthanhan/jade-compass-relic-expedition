@@ -4,7 +4,7 @@ import {
   NarrativeState,
   FullStoryResponse,
 } from "@/types/game";
-import { llmLogger } from "@/lib/llm-logger";
+import { logger } from "@/lib/logger";
 
 export abstract class BaseLLMProvider implements LLMProvider {
   abstract name: string;
@@ -150,11 +150,12 @@ Return ONLY a JSON object with this EXACT structure:
     systemPrompt: string,
     metadata?: Record<string, any>
   ) {
-    llmLogger.logRequest(this.name, method, requestId, prompt, systemPrompt, {
-      model: this.model,
-      apiBase: this.apiBase,
-      ...metadata,
-    });
+    logger.group(`[LLM ${this.name}] ${method} #${requestId}`);
+    logger.info("model:", this.model, "base:", this.apiBase);
+    if (metadata) logger.info("meta:", metadata);
+    logger.debug("system:", systemPrompt);
+    logger.debug("prompt:", prompt);
+    logger.groupEnd();
   }
 
   protected logResponse(
@@ -164,10 +165,22 @@ Return ONLY a JSON object with this EXACT structure:
     error?: string,
     metadata?: Record<string, any>
   ) {
-    llmLogger.logResponse(requestId, response, responseTime, error, metadata);
+    logger.group(`[LLM Response] #${requestId}`);
+    if (typeof responseTime === "number") logger.info("ms:", responseTime);
+    if (metadata) logger.info("meta:", metadata);
+    if (error) {
+      logger.error("error:", error);
+    } else {
+      // Trim very long payloads in dev console readability
+      const preview = response && response.length > 800 ? response.slice(0, 800) + "…" : response;
+      logger.debug("response:", preview);
+    }
+    logger.groupEnd();
   }
 
   protected generateRequestId(): string {
-    return llmLogger.generateRequestId();
+    // Simple unique-ish id for debugging
+    const rand = Math.random().toString(36).slice(2, 8);
+    return `${Date.now().toString(36)}-${rand}`;
   }
 }

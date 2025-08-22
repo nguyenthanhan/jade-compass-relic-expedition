@@ -30,9 +30,7 @@ Providers may extend with extra fields but must preserve this minimal schema.
 
 ### Victory & Failure
 
-- **Victory (clear all rounds):** Show **“Chúc mừng bạn đã tìm thấy nồi vàng.”**
-
-  - Optional easter egg: **“có cái nồi.”**
+- **Victory (clear all rounds):** Show **“Chúc mừng bạn đã tìm thấy một chiếc nồi.”**
 
 - **Failure (wrong choice):** Show a **failure summary**, composed of:
 
@@ -50,7 +48,7 @@ Providers may extend with extra fields but must preserve this minimal schema.
 - Support **OpenRouter** and **Google Gemini** by default.
 - UI lets user configure: **provider, API base, API key, model name**.
 - Include **Test Connection** button + inline validation.
-- Keys are **session-only** (in-memory, cleared on reload). Never persist or log.
+- Keys are **saved in `localStorage`** for convenience. Never persist on a server or log.
 - LLM must return **strict JSON** only (no prose).
 
 ### JSON Contract

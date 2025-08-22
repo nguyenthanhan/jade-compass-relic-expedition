@@ -94,6 +94,7 @@ export class OpenRouterProvider extends BaseLLMProvider {
           "X-Title": "Jade Compass: Relic Run",
         },
       });
+
       return response.ok;
     } catch (error) {
       console.error("OpenRouter connection test failed:", error);

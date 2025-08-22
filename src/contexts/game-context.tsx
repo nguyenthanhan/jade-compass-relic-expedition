@@ -31,6 +31,9 @@ interface GameContextType {
   makeChoice: (choice: Choice) => Promise<void>;
   resetGame: () => void;
   testConnection: () => Promise<boolean>;
+  testConnectionWith: (config: ProviderConfig) => Promise<boolean>;
+  isLoading: boolean;
+  loadingMessage?: string;
 }
 
 const defaultConfig: GameConfig = {
@@ -38,7 +41,6 @@ const defaultConfig: GameConfig = {
   choicesPerRound: 2,
   providerConfig: {
     provider: "gemini",
-    apiKey: "",
   },
 };
 
@@ -63,6 +65,10 @@ export function GameProvider({ children }: { children: ReactNode }) {
   const [currentRoundData, setCurrentRoundData] = useState<GameRound | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState<string | undefined>(
+    undefined
+  );
 
   useEffect(() => {
     if (
@@ -78,9 +84,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setGameConfig((prev) => ({ ...prev, ...config }));
   }, []);
 
-  const testConnection = useCallback(async () => {
+  const testConnectionWith = useCallback(async (config: ProviderConfig) => {
     try {
-      const testProvider = ProviderFactory.create(gameConfig.providerConfig);
+      setIsLoading(true);
+      setLoadingMessage("Testing connection…");
+      const testProvider = ProviderFactory.create(config);
       const result = await testProvider.testConnection();
       if (result) {
         toast.success("Connection successful!");
@@ -91,13 +99,21 @@ export function GameProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       toast.error("Connection failed: " + (error as Error).message);
       return false;
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage(undefined);
     }
-  }, [gameConfig.providerConfig]);
+  }, []);
+
+  const testConnection = useCallback(async () => {
+    return testConnectionWith(gameConfig.providerConfig);
+  }, [gameConfig.providerConfig, testConnectionWith]);
 
   const startGame = useCallback(async () => {
     try {
       const provider = ProviderFactory.create(gameConfig.providerConfig);
-      
+      setIsLoading(true);
+      setLoadingMessage("Generating your adventure…");
       toast.info("Generating your complete adventure...", { duration: 3000 });
 
       const storyData = await provider.generateFullStory(
@@ -122,11 +138,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
         choiceHistory: [],
         intro: storyData.intro,
       });
-      
+
       toast.success("Adventure generated successfully!");
     } catch (error) {
       toast.error("Failed to start game: " + (error as Error).message);
       console.error("Start game error:", error);
+    } finally {
+      setIsLoading(false);
+      setLoadingMessage(undefined);
     }
   }, [gameConfig, sessionSeed]);
 
@@ -189,8 +208,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
         makeChoice,
         resetGame,
         testConnection,
+        testConnectionWith,
+        isLoading,
+        loadingMessage,
       }}
     >
+      {isLoading && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="bg-[var(--background)] pixel-border pixel-shadow px-6 py-5 text-center">
+            <div className="font-pixel text-[var(--primary)] mb-3">LOADING…</div>
+            <div className="flex gap-1 justify-center mb-2">
+              <span className="w-3 h-3 bg-[var(--primary)] animate-bounce [animation-delay:-0.2s]"></span>
+              <span className="w-3 h-3 bg-[var(--primary)]/80 animate-bounce [animation-delay:-0.1s]"></span>
+              <span className="w-3 h-3 bg-[var(--primary)]/60 animate-bounce"></span>
+            </div>
+            {loadingMessage && (
+              <div className="font-retro text-sm text-[var(--muted-foreground)]">
+                {loadingMessage}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
       {children}
     </GameContext.Provider>
   );

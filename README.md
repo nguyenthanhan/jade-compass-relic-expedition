@@ -6,7 +6,7 @@ A retro 2D pixel-art treasure hunting adventure game built with Next.js, React, 
 
 ### Prerequisites
 - Node.js 18+ 
-- npm or yarn
+- pnpm or yarn
 
 ### Installation
 
@@ -18,12 +18,12 @@ cd jade-compass-relic-run
 
 2. Install dependencies:
 ```bash
-npm install
+pnpm install
 ```
 
 3. Run the development server:
 ```bash
-npm run dev
+pnpm run dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
@@ -75,7 +75,7 @@ Story continuity is maintained through a minimal state object containing locatio
 - **Retro Pixel-Art Style**: Authentic 2D pixel-art aesthetic with custom animations
 - **Multiple Endings**: Victory screen with Vietnamese easter egg, detailed failure summaries
 - **Accessibility**: Full keyboard navigation, ARIA labels, focus management
-- **Session-Based**: API keys are never persisted, cleared on page refresh
+- **Local Storage-Based**: API keys are saved in your browser's local storage for convenience, but are never transmitted anywhere else.
 - **Responsive Design**: Playable on desktop and mobile devices
 
 ## 🛠️ Development
@@ -89,15 +89,15 @@ Story continuity is maintained through a minimal state object containing locatio
 
 ## 📝 Scripts
 
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
+- `pnpm run dev` - Start development server
+- `pnpm run build` - Build for production
+- `pnpm run start` - Start production server
 
 ## 🔒 Security
 
-- API keys are stored in memory only (session-based)
-- Never logged or persisted to storage
-- Cleared on page refresh
+- API keys are stored in your browser's `localStorage` for convenience.
+- They are never logged or transmitted to any server.
+- You can clear them by clearing your browser's site data.
 - HTTPS recommended for production
 
 ---
