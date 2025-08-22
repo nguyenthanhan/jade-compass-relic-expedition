@@ -1,9 +1,9 @@
-# 🎮 _Jade Compass: Relic Run_
+# 🎮 _Jade Compass: Relic Expedition_
 
 ## Role & Goal
 
 You are a **senior React/Next.js engineer** and **narrative designer**.
-Build a small, replayable **treasure-hunter game** in Next.js (React) called **“Jade Compass: Relic Run.”**
+Build a small, replayable **treasure-hunter game** in Next.js (React) called **"Jade Compass: Relic Expedition"**
 The theme must always remain **treasure hunting** — no other genres allowed.
 
 ---

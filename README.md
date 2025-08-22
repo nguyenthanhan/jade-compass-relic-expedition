@@ -1,27 +1,31 @@
-# 🎮 Jade Compass: Relic Run
+# 🎮 Jade Compass: Relic Expedition
 
 A retro 2D pixel-art treasure hunting adventure game built with Next.js, React, and TypeScript. Navigate through perilous choices to find the legendary Jade Compass!
 
 ## 🏃‍♂️ Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - pnpm or yarn
 
 ### Installation
 
 1. Clone the repository:
+
 ```bash
-git clone https://github.com/yourusername/jade-compass-relic-run.git
-cd jade-compass-relic-run
+git clone https://github.com/yourusername/jade-compass-relic-expedition.git
+cd jade-compass-relic-expedition
 ```
 
 2. Install dependencies:
+
 ```bash
 pnpm install
 ```
 
 3. Run the development server:
+
 ```bash
 pnpm run dev
 ```
@@ -36,6 +40,7 @@ pnpm run dev
 4. **Reach the Treasure**: Survive all rounds to claim the Jade Compass
 
 ### Controls
+
 - **Mouse**: Click on choice cards to select
 - **Keyboard**: Press number keys (1-5) to quickly select choices
 - **Tab/Enter**: Navigate with keyboard for accessibility
@@ -43,16 +48,19 @@ pnpm run dev
 ## 🤖 LLM Provider Configuration
 
 ### Offline Mode (Default)
+
 No configuration needed! The game includes a rich pool of pre-written adventure scenarios.
 
 ### OpenRouter
+
 1. Get an API key from [OpenRouter](https://openrouter.ai/)
 2. In the game settings, select "OpenRouter" as your provider
 3. Enter your API key
 4. (Optional) Specify a model, or use the default free model
 
 ### Google Gemini
-1. Get an API key from [Google AI Studio](https://makersuite.google.com/app/apikey)
+
+1. Get an API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 2. In the game settings, select "Google Gemini" as your provider
 3. Enter your API key
 4. (Optional) Specify a model (default: gemini-1.5-flash)
@@ -60,12 +68,15 @@ No configuration needed! The game includes a rich pool of pre-written adventure 
 ## 🏗️ Architecture
 
 ### Provider Adapter Pattern
+
 The game uses an adapter pattern for LLM providers, making it easy to add new AI providers.
 
 ### Narrative State Management
+
 Story continuity is maintained through a minimal state object containing location, status, and items.
 
 ### Fallback System
+
 - Primary: Connected LLM provider (OpenRouter/Gemini)
 - Fallback: Offline event pool with 8+ unique scenarios
 - Automatic fallback on timeout (10s) or error
@@ -81,6 +92,7 @@ Story continuity is maintained through a minimal state object containing locatio
 ## 🛠️ Development
 
 ### Key Technologies
+
 - **Next.js 14**: React framework with App Router
 - **TypeScript**: Type-safe development
 - **Tailwind CSS**: Utility-first styling
