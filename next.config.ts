@@ -7,10 +7,29 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: isProd
       ? {
-          // Keep important error/warn in case you still want them
-          exclude: ["error", "warn"],
+          exclude: [],
         }
       : false,
+  },
+
+  // Add CORS headers for development
+  async headers() {
+    return [
+      {
+        source: "/api/:path*",
+        headers: [
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
+          },
+        ],
+      },
+    ];
   },
 };
 

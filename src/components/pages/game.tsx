@@ -1,45 +1,107 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useMemo } from "react";
 import { useGame } from "@/contexts/game-context";
-import { Choice } from "@/types/game";
+import { IChoice } from "@/types/game";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
 export function GamePage() {
-  const { gameState, gameConfig, makeChoice, currentRoundData, isLoading } =
+  const { settings, gameState, makeChoice, currentRoundData, isLoading } =
     useGame();
 
-  const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
+  const [selectedChoice, setSelectedChoice] = useState<IChoice | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
 
-  useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
+  const handleChoice = useCallback(
+    async (choice: IChoice) => {
+      if (isProcessing) return;
+
+      setSelectedChoice(choice);
+      setIsProcessing(true);
+
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await makeChoice(choice);
+      } catch (error) {
+        console.error("Error making choice:", error);
+        throw error;
+      } finally {
+        setIsProcessing(false);
+        setSelectedChoice(null);
+      }
+    },
+    [isProcessing, makeChoice]
+  );
+
+  const handleKeyDown = useCallback(
+    (e: KeyboardEvent) => {
       if (!currentRoundData || isProcessing) return;
 
-      const key = parseInt(e.key);
-      if (key >= 1 && key <= currentRoundData.choices.length) {
-        const choice = currentRoundData.choices[key - 1];
+      // Early return if user is typing in an input field
+      const target = e.target as HTMLElement;
+      if (
+        target.tagName === "INPUT" ||
+        target.tagName === "TEXTAREA" ||
+        target.contentEditable === "true"
+      ) {
+        return;
+      }
+
+      // Check for digit keys using e.code
+      let digit: number | null = null;
+      if (e.code.startsWith("Digit")) {
+        digit = parseInt(e.code.replace("Digit", ""));
+      } else if (e.code.startsWith("Numpad")) {
+        digit = parseInt(e.code.replace("Numpad", ""));
+      }
+
+      if (digit && digit >= 1 && digit <= currentRoundData.choices.length) {
+        const choice = currentRoundData.choices[digit - 1];
         handleChoice(choice);
       }
-    };
+    },
+    [currentRoundData, isProcessing, handleChoice]
+  );
 
-    window.addEventListener("keypress", handleKeyPress);
-    return () => window.removeEventListener("keypress", handleKeyPress);
-  }, [currentRoundData, isProcessing]);
+  // Memoize the items display logic
+  const itemsDisplay = useMemo(() => {
+    const items =
+      currentRoundData?.narrativeState.initItems ??
+      gameState.narrativeState.initItems ??
+      [];
+    return items.length ? items.join(", ") : "None";
+  }, [
+    currentRoundData?.narrativeState.initItems,
+    gameState.narrativeState.initItems,
+  ]);
 
-  const handleChoice = async (choice: Choice) => {
-    if (isProcessing) return;
+  // Memoize choice card class names
+  const getChoiceCardClassName = useCallback(
+    (choice: IChoice) => {
+      const baseClasses = "cursor-pointer transition-all hover:scale-105";
+      const selectedClasses =
+        selectedChoice?.id === choice.id ? "ring-4 ring-[var(--primary)]" : "";
+      const processingClasses =
+        isProcessing && selectedChoice?.id !== choice.id ? "opacity-50" : "";
 
-    setSelectedChoice(choice);
-    setIsProcessing(true);
+      return `${baseClasses} ${selectedClasses} ${processingClasses}`.trim();
+    },
+    [selectedChoice?.id, isProcessing]
+  );
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  // Memoize choice click handler
+  const createChoiceClickHandler = useCallback(
+    (choice: IChoice) => {
+      return () => handleChoice(choice);
+    },
+    [handleChoice]
+  );
 
-    await makeChoice(choice);
-    setIsProcessing(false);
-    setSelectedChoice(null);
-  };
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyDown]);
 
   if (isLoading || !currentRoundData) {
     return (
@@ -56,8 +118,13 @@ export function GamePage() {
     <div className="min-h-screen p-4">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="text-center space-y-2">
+          {gameState.overallTheme && (
+            <h1 className="font-pixel text-3xl text-[var(--accent)] mb-4">
+              {gameState.overallTheme}
+            </h1>
+          )}
           <h2 className="font-pixel text-2xl text-[var(--primary)]">
-            Round {gameState.currentRound} of {gameConfig.rounds}
+            Round {gameState.currentRound} of {settings?.gameConfig?.rounds}
           </h2>
           {gameState.intro && gameState.currentRound === 1 && (
             <p className="font-retro text-lg text-[var(--muted-foreground)] max-w-2xl mx-auto">
@@ -68,33 +135,76 @@ export function GamePage() {
 
         <Card>
           <CardContent className="pt-4">
-            <div className="grid grid-cols-3 gap-4 text-sm font-retro">
+            <div className="grid grid-cols-2 gap-4 text-base font-retro mb-4">
               <div>
                 <span className="text-[var(--muted-foreground)]">
                   Location:{" "}
                 </span>
                 <span className="text-[var(--accent)]">
-                  {currentRoundData?.narrative_state.location ||
+                  {currentRoundData?.narrativeState.location ||
                     gameState.narrativeState.location}
                 </span>
               </div>
               <div>
                 <span className="text-[var(--muted-foreground)]">Status: </span>
                 <span className="text-[var(--primary)]">
-                  {currentRoundData?.narrative_state.status ||
+                  {currentRoundData?.narrativeState.status ||
                     gameState.narrativeState.status}
                 </span>
               </div>
               <div>
                 <span className="text-[var(--muted-foreground)]">Items: </span>
-                <span>
-                  {(
-                    currentRoundData?.narrative_state.items ||
-                    gameState.narrativeState.items
-                  ).join(", ") || "None"}
-                </span>
+                <span>{itemsDisplay}</span>
               </div>
+              {(currentRoundData?.narrativeState.storyProgress ||
+                gameState.narrativeState.storyProgress) && (
+                <div>
+                  <span className="text-[var(--muted-foreground)]">
+                    Progress:{" "}
+                  </span>
+                  <span className="text-[var(--accent)]">
+                    {currentRoundData?.narrativeState.storyProgress ||
+                      gameState.narrativeState.storyProgress}
+                  </span>
+                </div>
+              )}
             </div>
+
+            {currentRoundData?.intro && (
+              <div className="border-t border-[var(--border)] pt-4">
+                <h3 className="font-pixel text-sm text-[var(--primary)] mb-2">
+                  Round Description
+                </h3>
+                <p className="font-retro text-sm text-[var(--muted-foreground)]">
+                  {currentRoundData.intro}
+                </p>
+              </div>
+            )}
+
+            {gameState.choiceHistory.length > 0 &&
+              gameState.currentRound > 1 && (
+                <div className="border-t border-[var(--border)] pt-4">
+                  <h3 className="font-pixel text-sm text-[var(--primary)] mb-2">
+                    Previous Choice Result
+                  </h3>
+                  <div className="p-3 bg-[var(--accent)]/10 rounded">
+                    <p className="font-retro text-xs font-semibold text-[var(--primary)] mb-1">
+                      {
+                        gameState.choiceHistory[
+                          gameState.choiceHistory.length - 1
+                        ]?.title
+                      }
+                    </p>
+                    <p className="font-retro text-sm text-[var(--muted-foreground)]">
+                      {
+                        gameState.choiceHistory[
+                          gameState.choiceHistory.length - 1
+                        ]?.consequence
+                      }
+                    </p>
+                  </div>
+                </div>
+              )}
           </CardContent>
         </Card>
 
@@ -102,21 +212,13 @@ export function GamePage() {
           {currentRoundData?.choices.map((choice, index) => (
             <Card
               key={choice.id}
-              className={`cursor-pointer transition-all hover:scale-105 ${
-                selectedChoice?.id === choice.id
-                  ? "ring-4 ring-[var(--primary)]"
-                  : ""
-              } ${
-                isProcessing && selectedChoice?.id !== choice.id
-                  ? "opacity-50"
-                  : ""
-              }`}
-              onClick={() => handleChoice(choice)}
+              className={getChoiceCardClassName(choice)}
+              onClick={createChoiceClickHandler(choice)}
             >
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span>{choice.title}</span>
-                  <span className="font-pixel text-xs text-[var(--muted-foreground)]">
+                  <span className="font-pixel text-sm text-[var(--muted-foreground)]">
                     [{index + 1}]
                   </span>
                 </CardTitle>

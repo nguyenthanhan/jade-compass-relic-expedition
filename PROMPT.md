@@ -63,7 +63,7 @@ Providers may extend with extra fields but must preserve this minimal schema.
       "id": "string",       // unique identifier
       "title": "string",    // short evocative label
       "summary": "string",  // 1–2 sentences outcome
-      "is_correct": true,   // exactly one = true
+      "is_correct": true,
       "consequence": "string" // short update affecting narrative_state
     }
   ],
@@ -146,16 +146,23 @@ If the response is malformed or times out → fallback to **offline event pool**
 ### ✅ Completed Features
 
 - **Core Game Engine**: Round-based choice system with narrative state management
-- **Provider Adapter Pattern**: OpenRouter and Google Gemini integration
+- **Provider Adapter Pattern**: OpenAI, OpenRouter, Anthropic, and Google Gemini integration
 - **Offline Fallback System**: Robust event pool with 8+ unique scenarios
-- **Settings Management**: API key storage, provider selection, model configuration
+- **Settings Management**: API key storage, provider selection, model configuration with auto-save
+- **Code Architecture**:
+  - Refactored home page into smaller, maintainable components
+  - Custom `useSettings` hook for centralized settings management
+  - Centralized constants for provider data and model lists
+  - Improved TypeScript types and interfaces
 - **UI/UX Improvements**:
   - Streamlined model lists (removed verbose labels/descriptions)
   - Integrated test connection button in modal footer
   - Enhanced button styling (destructive cancel, secondary test)
   - Better visual hierarchy and accessibility
+  - Introduction card with detailed gameplay instructions
+- **Performance Optimizations**: Fixed infinite re-render loops, memoized context values
 - **Responsive Design**: Mobile and desktop compatible
-- **Local Storage**: Secure API key management
+- **Local Storage**: Secure API key management with automatic persistence
 
 ### 🔄 Current Implementation
 
@@ -166,11 +173,19 @@ If the response is malformed or times out → fallback to **offline event pool**
 
 ### 🎯 Available Models
 
+**OpenAI:**
+
+- GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-4, GPT-3.5 Turbo
+
 **OpenRouter (Free Tier):**
 
 - DeepSeek Chat V3, DeepSeek R1 0528, Kimi K2, Qwen 3 235B A22B
 - Gemini 2.0 Flash Exp, MAI DS R1, Llama 3.3 70B Instruct
 - GPT OSS 20B, Qwen 3 14B, Mistral variants, Gemma 3 27B IT, GLM 4.5 Air
+
+**Anthropic:**
+
+- Claude Opus 4.1, Claude Opus 4, Claude Sonnet 4, Claude 3.7 Sonnet, Claude 3.5 Haiku
 
 **Google Gemini:**
 
@@ -199,7 +214,10 @@ If the response is malformed or times out → fallback to **offline event pool**
 ## Next Steps & Enhancements
 
 - **Performance Optimization**: Implement caching for LLM responses
-- **Additional Providers**: Support for more AI services (Claude, etc.)
+- **Additional Providers**: Support for more AI services (already added Claude/Anthropic)
 - **Advanced Features**: Save/load game states, achievements system
 - **Accessibility**: Screen reader optimization, high contrast mode
 - **Internationalization**: Multi-language support for global players
+- **Code Quality**: Continue refactoring other large components
+- **Testing**: Add comprehensive test coverage for new components
+- **Documentation**: Keep documentation updated with new features

@@ -1,32 +1,32 @@
-export interface NarrativeState {
+export interface INarrativeState {
   location: string;
   status: string;
-  items: string[];
-  story_progress?: string;
-  [key: string]: any;
+  initItems: string[];
+  storyProgress?: string;
 }
 
-export interface Choice {
+export interface IChoice {
   id: string;
   title: string;
   summary: string;
-  is_correct: boolean;
+  isCorrect: boolean;
   consequence: string;
+  finalItems: string[];
 }
 
-export interface GameRound {
+export interface IGameRound {
   intro: string;
   round: number;
   location: string;
-  narrative_state: NarrativeState;
-  choices: Choice[];
-  failure_summary?: string;
+  narrativeState: INarrativeState;
+  choices: IChoice[];
+  failureSummary?: string;
 }
 
-export interface FullStoryResponse {
+export interface IFullStoryResponse {
   intro: string;
-  rounds: GameRound[];
-  overall_theme?: string;
+  rounds: IGameRound[];
+  overallTheme: string;
 }
 
 export interface LLMProvider {
@@ -35,33 +35,42 @@ export interface LLMProvider {
   generateFullStory(
     totalRounds: number,
     choicesPerRound: number,
-    seed?: string
-  ): Promise<FullStoryResponse>;
-  testConnection(): Promise<boolean>;
+    contentLanguage: ContentLanguageType,
+    seed: string
+  ): Promise<IFullStoryResponse>;
+
+  generateRequestId(): string;
 }
 
-export interface ProviderConfig {
-  provider: "openrouter" | "gemini";
+export type ProviderType = "openrouter" | "openai" | "anthropic" | "gemini";
+export interface IProviderConfig {
+  provider?: ProviderType;
   apiBase?: string;
-  apiKey?: string;
+  apiKeyManager?: { [key in ProviderType]?: string };
   model?: string;
+  customModel?: string;
 }
 
-export interface GameConfig {
-  rounds: number;
-  choicesPerRound: number;
-  providerConfig: ProviderConfig;
+export interface IGameConfig {
+  rounds?: number;
+  choicesPerRound?: number;
+  contentLanguage?: ContentLanguageType;
 }
 
-export interface GameState {
+export interface IGameState {
   status: "idle" | "playing" | "victory" | "failure";
   currentRound: number;
-  narrativeState: NarrativeState;
-  choiceHistory: Choice[];
+  narrativeState: INarrativeState;
+  choiceHistory: IChoice[];
   failureReason?: string;
   intro?: string;
+  overallTheme?: string;
 }
 
-export interface ISettings extends ProviderConfig {
+export interface ISettings {
   selectedKeyName?: string;
+  gameConfig?: IGameConfig;
+  providerConfig?: IProviderConfig;
 }
+
+export type ContentLanguageType = "Vietnamese" | "English";

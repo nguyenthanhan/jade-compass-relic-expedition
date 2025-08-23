@@ -1,5 +1,5 @@
-import * as React from "react"
-import { clsx } from "clsx"
+import * as React from "react";
+import { clsx } from "clsx";
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -13,8 +13,8 @@ const Card = React.forwardRef<
     )}
     {...props}
   />
-))
-Card.displayName = "Card"
+));
+Card.displayName = "Card";
 
 const CardHeader = React.forwardRef<
   HTMLDivElement,
@@ -25,11 +25,11 @@ const CardHeader = React.forwardRef<
     className={clsx("flex flex-col space-y-1.5 pb-4", className)}
     {...props}
   />
-))
-CardHeader.displayName = "CardHeader"
+));
+CardHeader.displayName = "CardHeader";
 
 const CardTitle = React.forwardRef<
-  HTMLParagraphElement,
+  HTMLHeadingElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
   <h3
@@ -40,8 +40,8 @@ const CardTitle = React.forwardRef<
     )}
     {...props}
   />
-))
-CardTitle.displayName = "CardTitle"
+));
+CardTitle.displayName = "CardTitle";
 
 const CardDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -52,16 +52,16 @@ const CardDescription = React.forwardRef<
     className={clsx("font-retro text-[var(--muted-foreground)]", className)}
     {...props}
   />
-))
-CardDescription.displayName = "CardDescription"
+));
+CardDescription.displayName = "CardDescription";
 
 const CardContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={clsx("pt-0", className)} {...props} />
-))
-CardContent.displayName = "CardContent"
+));
+CardContent.displayName = "CardContent";
 
 const CardFooter = React.forwardRef<
   HTMLDivElement,
@@ -72,7 +72,14 @@ const CardFooter = React.forwardRef<
     className={clsx("flex items-center pt-4", className)}
     {...props}
   />
-))
-CardFooter.displayName = "CardFooter"
+));
+CardFooter.displayName = "CardFooter";
 
-export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }
+export {
+  Card,
+  CardHeader,
+  CardFooter,
+  CardTitle,
+  CardDescription,
+  CardContent,
+};

@@ -1,5 +1,5 @@
 ![CodeRabbit Pull Request Reviews](https://img.shields.io/coderabbit/prs/github/nguyenthanhan/jade-compass-relic-expedition?utm_source=oss&utm_medium=github&utm_campaign=nguyenthanhan%2Fjade-compass-relic-expedition&labelColor=171717&color=FF570A&link=https%3A%2F%2Fcoderabbit.ai&label=CodeRabbit+Reviews)
-[![Release and Deploy](https://github.com/nguyenthanhan//jade-compass-relic-expedition/workflows/Deploy%20and%20Release/badge.svg)](https://github.com/nguyenthanhan//jade-compass-relic-expedition/actions/workflows/deploy-and-release.yml)
+[![Release and Deploy](https://github.com/nguyenthanhan/jade-compass-relic-expedition/workflows/Deploy%20and%20Release/badge.svg)](https://github.com/nguyenthanhan//jade-compass-relic-expedition/actions/workflows/deploy-and-release.yml)
 [![Deploy on Vercel](https://img.shields.io/badge/Deploy%20on-Vercel-black)](https://vercel.com/heimers-projects/jade-compass-relic-expedition)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
@@ -15,15 +15,15 @@ A retro 2D pixel-art treasure hunting adventure game built with Next.js, React, 
 
 ### Prerequisites
 
-- Node.js 18+
-- pnpm or yarn
+- Node.js 18+ (recommended: Node.js 20+ for Next.js 15)
+- pnpm (recommended) or yarn or npm
 
 ### Installation
 
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/yourusername/jade-compass-relic-expedition.git
+git clone https://github.com/nguyenthanhan/jade-compass-relic-expedition.git
 cd jade-compass-relic-expedition
 ```
 
@@ -40,6 +40,13 @@ pnpm run dev
 ```
 
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+### Development Features
+
+- **Hot Reload**: Instant updates during development
+- **TypeScript**: Full type checking and IntelliSense
+- **ESLint**: Code quality and consistency
+- **Tailwind CSS**: Utility-first styling with hot reload
 
 ## 🎯 How to Play
 
@@ -60,6 +67,17 @@ pnpm run dev
 
 No configuration needed! The game includes a rich pool of pre-written adventure scenarios.
 
+### OpenAI
+
+1. Get an API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+2. In the game settings, select "OpenAI" as your provider
+3. Enter your API key
+4. (Optional) Specify a model from the curated list or enter a custom model name
+
+**Available Models:**
+
+- GPT-4o, GPT-4o Mini, GPT-4 Turbo, GPT-4, GPT-3.5 Turbo
+
 ### OpenRouter
 
 1. Get an API key from [OpenRouter](https://openrouter.ai/)
@@ -69,15 +87,20 @@ No configuration needed! The game includes a rich pool of pre-written adventure 
 
 **Available Models:**
 
-- DeepSeek Chat V3 (free tier)
-- DeepSeek R1 0528 (free tier)
-- Kimi K2 (free tier)
-- Qwen 3 235B A22B (free tier)
-- Gemini 2.0 Flash Exp (free tier)
-- MAI DS R1 (free tier)
-- Llama 3.3 70B Instruct (free tier)
-- GPT OSS 20B (free tier)
-- And more...
+- DeepSeek Chat V3, DeepSeek R1 0528, Kimi K2, Qwen 3 235B A22B
+- Gemini 2.0 Flash Exp, MAI DS R1, Llama 3.3 70B Instruct
+- GPT OSS 20B, Qwen 3 14B, Mistral variants, Gemma 3 27B IT, GLM 4.5 Air
+
+### Anthropic (Claude)
+
+1. Get an API key from [Anthropic Console](https://console.anthropic.com/account/keys)
+2. In the game settings, select "Anthropic" as your provider
+3. Enter your API key
+4. (Optional) Specify a model from the curated list or enter a custom model name
+
+**Available Models:**
+
+- Claude Opus 4.1, Claude Opus 4, Claude Sonnet 4, Claude 3.7 Sonnet, Claude 3.5 Haiku
 
 ### Google Gemini
 
@@ -88,15 +111,22 @@ No configuration needed! The game includes a rich pool of pre-written adventure 
 
 **Available Models:**
 
-- Gemini 2.5 Flash
-- Gemini 2.5 Pro
-- Gemini 2.0 Flash
+- Gemini 2.5 Flash, Gemini 2.5 Pro, Gemini 2.0 Flash
 
 ## 🏗️ Architecture
 
+### Next.js 15 Features
+
+- **App Router**: Modern file-based routing with nested layouts
+- **Server Components**: Improved performance with server-side rendering
+- **Streaming**: Progressive loading for better user experience
+- **Turbopack**: Faster development builds (when available)
+- **Image Optimization**: Automatic image optimization and WebP support
+- **Font Optimization**: System font stack with fallbacks
+
 ### Provider Adapter Pattern
 
-The game uses an adapter pattern for LLM providers, making it easy to add new AI providers. Each provider implements a consistent interface for generating game events.
+The game uses an adapter pattern for LLM providers, making it easy to add new AI providers. Each provider implements a consistent interface for generating game events. Currently supports OpenAI, OpenRouter, Anthropic, and Google Gemini.
 
 ### Narrative State Management
 
@@ -104,9 +134,16 @@ Story continuity is maintained through a minimal state object containing locatio
 
 ### Fallback System
 
-- Primary: Connected LLM provider (OpenRouter/Gemini)
+- Primary: Connected LLM provider (OpenAI/OpenRouter/Anthropic/Gemini)
 - Fallback: Offline event pool with 8+ unique scenarios
 - Automatic fallback on timeout (10s) or error
+
+### Code Architecture
+
+- **Component Refactoring**: Home page split into smaller, maintainable components
+- **Custom Hooks**: `useSettings` hook for centralized settings management
+- **Constants Management**: Centralized provider data and model lists
+- **Type Safety**: Improved TypeScript types and interfaces
 
 ### UI/UX Improvements
 
@@ -114,6 +151,8 @@ Story continuity is maintained through a minimal state object containing locatio
 - **Integrated Test Button**: Test connection button positioned in the modal footer for better workflow
 - **Enhanced Visual Design**: Improved button styling with destructive cancel button and secondary test button
 - **Better Accessibility**: Improved focus management and visual feedback
+- **Introduction Card**: Detailed gameplay instructions and tips
+- **Auto-save**: Settings automatically saved when changed
 
 ## 🎨 Features
 
@@ -121,18 +160,20 @@ Story continuity is maintained through a minimal state object containing locatio
 - **Multiple Endings**: Victory screen with Vietnamese easter egg, detailed failure summaries
 - **Accessibility**: Full keyboard navigation, ARIA labels, focus management
 - **Local Storage-Based**: API keys are saved in your browser's local storage for convenience, but are never transmitted anywhere else
-- **Responsive Design**: Playable on desktop and mobile devices
+- **Responsive Design**: Playable on desktop and mobile devices with Next.js 15 optimizations
 - **Smart Fallbacks**: Graceful degradation when LLM services are unavailable
+- **Modern Web Standards**: Built with the latest Next.js 15 features and React 18+ capabilities
 
 ## 🛠️ Development
 
 ### Key Technologies
 
-- **Next.js 14**: React framework with App Router
-- **TypeScript**: Type-safe development
-- **Tailwind CSS**: Utility-first styling with custom CSS variables
-- **Sonner**: Toast notifications
-- **Lucide Icons**: Icon library
+- **Next.js 15**: React framework with App Router, Server Components, and latest optimizations
+- **React 18+**: Latest React features with concurrent rendering
+- **TypeScript 5+**: Type-safe development with latest language features
+- **Tailwind CSS 3+**: Utility-first styling with custom CSS variables and JIT compilation
+- **Sonner**: Modern toast notifications
+- **Lucide Icons**: Beautiful, customizable icon library
 
 ### Project Structure
 
@@ -141,20 +182,24 @@ src/
 ├── components/
 │   ├── ui/           # Reusable UI components
 │   ├── pages/        # Page components
+│   ├── home/         # Home page components (refactored)
 │   └── game/         # Game-specific components
 ├── contexts/         # React contexts
+├── hooks/            # Custom hooks (use-settings, use-round-data)
 ├── types/            # TypeScript type definitions
-├── providers/        # LLM provider adapters
+├── lib/
+│   └── providers/    # LLM provider adapters
 └── utils/            # Utility functions
 ```
 
 ## 📝 Scripts
 
-- `pnpm run dev` - Start development server
+- `pnpm run dev` - Start development server with hot reload
 - `pnpm run build` - Build for production
 - `pnpm run start` - Start production server
-- `pnpm run lint` - Run ESLint
+- `pnpm run lint` - Run ESLint for code quality
 - `pnpm run type-check` - Run TypeScript type checking
+- `pnpm run clean` - Clean build cache and dependencies
 
 ## 🔒 Security
 
@@ -165,10 +210,15 @@ src/
 
 ## 🚀 Recent Updates
 
-- **Simplified Model Lists**: Removed verbose labels and descriptions for cleaner interface
-- **Improved Modal Layout**: Test connection button moved to footer for better UX
-- **Enhanced Button Styling**: Better visual hierarchy with destructive cancel and secondary test buttons
-- **Code Cleanup**: Streamlined model data structures and improved maintainability
+- **Code Refactoring**: Split home page into smaller, maintainable components
+- **Custom Hooks**: Extracted settings logic into reusable `useSettings` hook
+- **Constants Management**: Centralized provider data and model lists
+- **Performance Fixes**: Resolved infinite re-render loops and optimized context updates
+- **Provider Support**: Added OpenAI and Anthropic (Claude) providers
+- **Auto-save Feature**: Settings automatically saved when changed
+- **Introduction Card**: Added detailed gameplay instructions and tips
+- **CORS Fixes**: Resolved API endpoint configuration issues
+- **Type Safety**: Improved TypeScript types and interfaces
 
 ---
 

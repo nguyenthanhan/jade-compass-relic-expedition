@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# Release script for Real Scale Solar System
 # Usage: pnpm release [major|minor|patch]
 # Examples: 
 #   pnpm release patch  # 1.0.0 -> 1.0.1
@@ -102,8 +101,8 @@ if [ -z "$RELEASE_TYPE" ]; then
     print_info "Pulling latest changes from origin..."
     git pull origin $CURRENT_BRANCH
     
-    # Stage all changes
-    print_info "Staging all changes..."
+    # Stage release-related files
+    print_info "Staging release-related files (package.json, CHANGELOG.md, README.md)"
     git add package.json CHANGELOG.md README.md
     
     # Get current version
@@ -121,9 +120,13 @@ if [ -z "$RELEASE_TYPE" ]; then
     
     # Create annotated tag for current version
     print_info "Creating git tag v$CURRENT_VERSION..."
-    git tag -a "v$CURRENT_VERSION" -m "Release v$CURRENT_VERSION
+    if git rev-parse "v$CURRENT_VERSION" >/dev/null 2>&1; then
+        print_warning "Tag v$CURRENT_VERSION already exists, skipping tag creation"
+    else
+        git tag -a "v$CURRENT_VERSION" -m "Release v$CURRENT_VERSION
 
 Push-only release - no version bump"
+    fi
     
     # Push changes and tags
     print_info "Pushing changes to origin..."
@@ -179,14 +182,22 @@ npm version $NEW_VERSION --no-git-tag-version
 if [ -f "CHANGELOG.md" ]; then
     print_info "Updating CHANGELOG.md with release date..."
     TODAY=$(date +"%Y-%m-%d")
-    sed -i "s/## \[$NEW_VERSION\] - [0-9]\{4\}-[0-9]\{2\}-[0-9]\{2\}/## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s/## \[$NEW_VERSION\] - [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
+    else
+        sed -i "s/## \[$NEW_VERSION\] - [0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]/## [$NEW_VERSION] - $TODAY/" CHANGELOG.md
+    fi
 fi
 
 # Update README.md version badge if it exists
 if [ -f "README.md" ]; then
     print_info "Updating README.md version badge to $NEW_VERSION..."
     # Update the version badge in README.md
-    sed -i "s/badge\/version-[0-9]\+\.[0-9]\+\.[0-9]\+/badge\/version-$NEW_VERSION/" README.md
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        sed -i '' "s/badge\/version-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/badge\/version-$NEW_VERSION/" README.md
+    else
+        sed -i "s/badge\/version-[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*/badge\/version-$NEW_VERSION/" README.md
+    fi
 fi
 
 # Stage files for commit
