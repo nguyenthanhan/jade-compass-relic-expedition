@@ -33,7 +33,7 @@ jobs:
             const deployment = await github.rest.repos.createDeployment({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              ref: context.ref,
+              ref: context.sha,
               environment: 'production',
               description: 'Production deployment via Vercel',
               auto_merge: false,
@@ -73,7 +73,7 @@ jobs:
         id: previous_tag
         run: |
           # Get the previous tag (excluding the current one)
-          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "${{ steps.version.outputs.VERSION }}" | head -n 1)
+          PREVIOUS_TAG=$(git tag --sort=-version:refname | grep -v "^${{ steps.version.outputs.VERSION }}$" | head -n 1)
 
           # If no previous tag exists, use the initial commit
           if [ -z "$PREVIOUS_TAG" ]; then

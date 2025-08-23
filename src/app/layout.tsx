@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Orbitron, Space_Mono } from "next/font/google";
 import "./globals.css";
 import { GameProvider } from "@/contexts/game-context";
 import { Toaster } from "sonner";
@@ -12,6 +12,18 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
   subsets: ["latin"],
+});
+
+const orbitron = Orbitron({
+  variable: "--font-orbitron",
+  subsets: ["latin"],
+  weight: ["400", "700", "900"],
+});
+
+const spaceMono = Space_Mono({
+  variable: "--font-space-mono",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -27,7 +39,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${orbitron.variable} ${spaceMono.variable} antialiased`}
       >
         <GameProvider>
           {children}
@@ -38,8 +50,8 @@ export default function RootLayout({
                 background: 'var(--card)',
                 color: 'var(--card-foreground)',
                 border: '2px solid var(--border)',
-                fontFamily: 'VT323, monospace',
-                fontSize: '18px',
+                fontFamily: 'var(--font-space-mono), monospace',
+                fontSize: '22px',
               },
             }}
           />

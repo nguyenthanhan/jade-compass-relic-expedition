@@ -10,7 +10,7 @@ export interface ButtonProps
 }
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "default", size = "default", asChild = false, ...props }, ref) => {
+  ({ className, variant = "default", size = "default", asChild = false, type = "button", ...props }, ref) => {
     const Comp = asChild ? Slot : "button"
     
     const baseStyles = "font-pixel inline-flex items-center justify-center transition-all pixel-shadow active:translate-x-1 active:translate-y-1 active:shadow-none disabled:pointer-events-none disabled:opacity-50"
@@ -25,7 +25,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     
     const sizes = {
       default: "px-4 py-3",
-      sm: "px-3 py-2 text-xs",
+      sm: "px-3 py-2 text-sm",
       lg: "px-6 py-4"
     }
     
@@ -37,6 +37,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
           sizes[size],
           className
         )}
+        type={type}
         ref={ref}
         {...props}
       />

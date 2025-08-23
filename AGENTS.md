@@ -5,8 +5,9 @@
 - `src/app/`: Next.js App Router entry (`layout.tsx`, `page.tsx`), global styles `globals.css`.
 - `src/components/`: Reusable UI and page components (e.g., `components/ui/button.tsx`).
 - `src/components/pages/`: Page-specific components (e.g., `home.tsx`, game components).
+- `src/components/home/`: Home page components split into smaller, maintainable pieces.
 - `src/contexts/`: React context state (e.g., `game-context.tsx`).
-- `src/hooks/`: Custom hooks (e.g., `use-round-data.ts`).
+- `src/hooks/`: Custom hooks (e.g., `use-settings.ts`, `use-round-data.ts`).
 - `src/lib/`: Utilities and providers (LLM adapters in `lib/providers/*`).
 - `src/types/`: Shared TypeScript types (e.g., `types/game.ts`).
 - `public/`: Static assets. Build output lives in `.next/`.
@@ -17,7 +18,6 @@
 - `pnpm build`: Production build.
 - `pnpm start`: Run the built app.
 - `pnpm lint`: Run Next.js/ESLint checks.
-- `pnpm type-check`: Run TypeScript type checking.
 
 **Tip**: npm equivalents exist (e.g., `npm run dev`), but this repo uses `pnpm` as the primary package manager.
 
@@ -46,6 +46,9 @@
 - **Error Handling**: Implement robust fallback to offline mode on failures.
 - **Type Safety**: Use strict typing for provider responses and error states.
 - **Testing**: Mock network calls in tests; avoid real API calls during development.
+- **Provider Support**: Currently supports OpenAI, OpenRouter, Anthropic, and Google Gemini.
+- **API Base URLs**: Use correct API endpoints from centralized constants.
+- **CORS Handling**: Proper CORS configuration for cross-origin requests.
 
 ## Testing Guidelines
 
@@ -62,6 +65,9 @@
 - **Local Storage**: Store user preferences and API keys locally (never on server).
 - **State Updates**: Use immutable updates and avoid direct mutations.
 - **Performance**: Implement proper dependency arrays in useEffect and useMemo.
+- **Auto-save**: Settings are automatically saved when changed (rounds, choices, provider, model).
+- **Custom Hooks**: `useSettings` hook manages all settings state and localStorage operations.
+- **Optimized Updates**: Memoized context values to prevent unnecessary re-renders.
 
 ## Security & Configuration
 
@@ -77,6 +83,11 @@
 - **Button Styling**: Use semantic button variants for better visual hierarchy.
 - **Code Cleanup**: Remove unused properties and simplify data structures.
 - **Accessibility**: Improve focus management and keyboard navigation.
+- **Code Refactoring**: Split large components into smaller, maintainable pieces.
+- **Custom Hooks**: Extracted settings logic into reusable `useSettings` hook.
+- **Constants Management**: Centralized provider data and model lists.
+- **Type Safety**: Improved TypeScript types and interfaces.
+- **Performance**: Fixed infinite re-render loops and optimized context updates.
 
 ## Commit & Pull Request Guidelines
 

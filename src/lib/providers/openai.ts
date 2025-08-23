@@ -1,19 +1,25 @@
 import { OpenAI } from "openai";
-import { FullStoryResponse } from "@/types/game";
-import { BaseLLMProvider } from "./base-provider";
+import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
+import { BaseLLMProvider } from "./base";
+import { parseToFullStoryResponse } from "@/utils/response-parser";
+import { parseJSONResponse } from "@/utils/string";
 
-export class OpenRouterProvider extends BaseLLMProvider {
-  name = "OpenRouter";
+export class OpenAIProvider extends BaseLLMProvider {
+  name: string;
+  protected apiKey: string;
+  protected apiBase: string;
+  protected model: string;
   private client: OpenAI;
 
-  constructor(
-    apiKey: string,
-    model: string = "meta-llama/llama-3.2-3b-instruct:free"
-  ) {
-    super(apiKey, "https://openrouter.ai/api/v1", model);
+  constructor(apiKey: string, name: string, apiBase: string, model: string) {
+    super(apiKey, apiBase, model);
+    this.name = name;
+    this.apiKey = apiKey;
+    this.apiBase = apiBase;
+    this.model = model;
 
     if (!apiKey) {
-      throw new Error("OpenRouter API key is required");
+      throw new Error(`${name} API key is required`);
     }
 
     this.client = new OpenAI({
@@ -30,11 +36,12 @@ export class OpenRouterProvider extends BaseLLMProvider {
   async generateFullStory(
     totalRounds: number,
     choicesPerRound: number,
-    seed?: string
-  ): Promise<FullStoryResponse> {
+    contentLanguage: ContentLanguageType,
+    seed: string
+  ): Promise<IFullStoryResponse> {
     const requestId = this.generateRequestId();
     const systemPrompt = this.createFullStorySystemPrompt({
-      contentLanguage: "Vietnamese",
+      contentLanguage,
     });
     const prompt = this.createFullStoryPrompt(totalRounds, choicesPerRound);
 
@@ -48,7 +55,7 @@ export class OpenRouterProvider extends BaseLLMProvider {
     const startTime = Date.now();
     try {
       if (!this.apiKey) {
-        throw new Error("OpenRouter API key is not configured");
+        throw new Error(`${this.name} API key is not configured`);
       }
 
       const response = await this.client.chat.completions.create({
@@ -63,25 +70,26 @@ export class OpenRouterProvider extends BaseLLMProvider {
 
       const content = response.choices[0]?.message?.content;
       if (!content) {
-        throw new Error("No content in response from OpenRouter");
+        throw new Error(`No content in response from ${this.name}`);
       }
 
       const responseTime = Date.now() - startTime;
-      this.logResponse(requestId, content, responseTime, undefined, {
-        model: this.model,
-        estimatedTokens:
-          response.usage?.total_tokens || Math.floor(content.length / 4),
-      });
 
-      const parsedResponse = this.parseJSONResponse(content);
+      const jsonText = parseJSONResponse(content);
+      const parsedResponse = parseToFullStoryResponse(jsonText);
 
-      if (
-        !parsedResponse ||
-        !parsedResponse.rounds ||
-        !Array.isArray(parsedResponse.rounds)
-      ) {
-        throw new Error("Invalid response format from OpenRouter");
-      }
+      this.logResponse(
+        requestId,
+        response,
+        jsonText,
+        parsedResponse,
+        responseTime,
+        undefined,
+        {
+          model: this.model,
+          usage: response.usage,
+        }
+      );
 
       return parsedResponse;
     } catch (error) {
@@ -89,22 +97,20 @@ export class OpenRouterProvider extends BaseLLMProvider {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
 
-      this.logResponse(requestId, undefined, responseTime, errorMessage, {
-        model: this.model,
-        error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
-      });
+      this.logResponse(
+        requestId,
+        undefined,
+        undefined,
+        undefined,
+        responseTime,
+        errorMessage,
+        {
+          model: this.model,
+          usage: undefined,
+        }
+      );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);
-    }
-  }
-
-  async testConnection(): Promise<boolean> {
-    try {
-      await this.client.models.retrieve(this.model);
-      return true;
-    } catch (error) {
-      console.error("Connection test failed:", error);
-      return false;
     }
   }
 }

@@ -1,8 +1,9 @@
 import {
-  GameRound,
   LLMProvider,
-  NarrativeState,
-  FullStoryResponse,
+  IGameRound,
+  INarrativeState,
+  IFullStoryResponse,
+  ContentLanguageType,
 } from "@/types/game";
 import { logger } from "@/lib/logger";
 
@@ -18,22 +19,21 @@ export abstract class BaseLLMProvider implements LLMProvider {
     this.model = model;
   }
 
-  abstract testConnection(): Promise<boolean>;
-
   async generateFullStory(
     totalRounds: number,
     choicesPerRound: number,
-    seed?: string
-  ): Promise<FullStoryResponse> {
-    return this.parseJSONResponse("");
+    contentLanguage: ContentLanguageType,
+    seed: string
+  ): Promise<IFullStoryResponse> {
+    throw new Error("generateFullStory method must be implemented by subclass");
   }
 
   protected createFullStorySystemPrompt({
     contentLanguage,
   }: {
-    contentLanguage: string;
+    contentLanguage: ContentLanguageType;
   }): string {
-    return `You are a narrative designer for a treasure hunting adventure game called "Jade Compass: Relic Expedition".
+    return `You are a narrative designer for a treasure-hunting adventure game called "Jade Compass: Relic Expedition".
 
 Your task is to create a COMPLETE, CONNECTED story spanning multiple rounds. The story must:
 - Maintain continuity between rounds
@@ -42,7 +42,7 @@ Your task is to create a COMPLETE, CONNECTED story spanning multiple rounds. The
 - Culminate in finding the legendary Jade Compass
 - Be written ENTIRELY in ${contentLanguage}
 
-Your response MUST BE IN STANDARD JSON FORMAT - no plain text, no markdown, no additional explanations.
+Your response must be in standard JSON format with no plain text, no markdown, no additional explanations, minimal, and no whitespace or end line.
 
 The game theme is ALWAYS treasure hunting with elements like:
 - Ancient ruins, mysterious temples, hidden caves,...
@@ -80,44 +80,33 @@ Response Format (JSON only):
       "id": "r1",
       "title": "Round 1 Title",
       "description": "Detailed description of the current situation",
-      "narrative_state": {
+      "narrativeState": {
         "location": "Current location",
         "status": "Character's current condition",
-        "items": ["current", "inventory", "items"],
-        "story_progress": "Summary of story events up to this point"
+        "initItems": ["current", "inventory", "items"],
+        "storyProgress": "Summary of story events up to this point"
       },
       "choices": [
         {
           "id": "r1_c1",
           "title": "Choice 1 Title",
           "summary": "What happens if this option is chosen (1-2 sentences)",
-          "is_correct": true,
-          "consequence": "How this choice impacts the story"
+          "isCorrect": true,
+          "consequence": "How this choice impacts the story",
+          "finalItems": ["final", "inventory", "items"]
         },
         {
           "id": "r1_c2",
           "title": "Choice 2 Title",
           "summary": "What happens if this option is chosen",
-          "is_correct": false,
-          "consequence": "Why this is not the optimal choice"
+          "isCorrect": false,
+          "consequence": "Why this is not the optimal choice",
+          "finalItems": ["final", "inventory", "items"]
         }
       ]
     }
   ]
 }`;
-  }
-
-  protected parseJSONResponse(text: string): any {
-    try {
-      const cleanText = text
-        .replace(/```json\n?/g, "")
-        .replace(/```\n?/g, "")
-        .trim();
-      return JSON.parse(cleanText);
-    } catch (error) {
-      console.error("Failed to parse JSON response:", text);
-      throw new Error("Invalid JSON response from LLM");
-    }
   }
 
   // Helper methods for consistent logging
@@ -129,34 +118,46 @@ Response Format (JSON only):
     metadata?: Record<string, any>
   ) {
     logger.group(`[LLM ${this.name}] ${method} #${requestId}`);
-    logger.info("model:", this.model, "base:", this.apiBase);
-    if (metadata) logger.info("meta:", metadata);
-    logger.debug("system:", systemPrompt);
-    logger.debug("prompt:", prompt);
+    logger.log("model:", this.model, "base:", this.apiBase);
+    if (metadata) logger.log("meta:", metadata);
+    logger.log("system:", systemPrompt);
+    logger.log("prompt:", prompt);
     logger.groupEnd();
   }
 
   protected logResponse(
     requestId: string,
-    response?: string,
+    response?: string | object,
+    json?: object,
+    parsedResponse?: object,
     responseTime?: number,
     error?: string,
     metadata?: Record<string, any>
   ) {
     logger.group(`[LLM Response] #${requestId}`);
-    if (typeof responseTime === "number") logger.info("ms:", responseTime);
-    if (metadata) logger.info("meta:", metadata);
+    if (typeof responseTime === "number") logger.log("ms:", responseTime);
+    if (metadata) logger.log("meta:", metadata);
     if (error) {
       logger.error("error:", error);
-    } else {
-      logger.debug("response:", response);
+    }
+
+    if (response) {
+      logger.log("response :", response);
+    }
+
+    if (json) {
+      logger.log("json :", json);
+    }
+
+    if (parsedResponse) {
+      logger.log("parsedResponse :", parsedResponse);
     }
     logger.groupEnd();
   }
 
-  protected generateRequestId(): string {
+  generateRequestId(): string {
     // Simple unique-ish id for debugging
-    const rand = Math.random().toString(36).slice(2, 8);
+    const rand = Math.random().toString(36).slice(4, 16);
     return `${Date.now().toString(36)}-${rand}`;
   }
 }

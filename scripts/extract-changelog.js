@@ -25,11 +25,9 @@ function extractChangelog(version) {
 
     // Find the section for this version including the header
     // This regex looks for ## [version] - date followed by content until next ## or ---
+    const escapedVersion = cleanVersion.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     const versionPattern = new RegExp(
-      `(## \\[${cleanVersion.replace(
-        /\./g,
-        "\\."
-      )}\\] - [^\\n]+\\n[\\s\\S]*?)(?=\\n## |\\n---|$)`,
+      `(## \\[${escapedVersion}\\] - [^\\n]+\\n[\\s\\S]*?)(?=\\n## |\\n---|$)`,
       "i"
     );
 

@@ -3,11 +3,9 @@
  * Automatically strips all logging in production builds
  */
 
-type LogLevel = "debug" | "info" | "warn" | "error";
-
 interface Logger {
   debug: (...args: any[]) => void;
-  info: (...args: any[]) => void;
+  log: (...args: any[]) => void;
   warn: (...args: any[]) => void;
   error: (...args: any[]) => void;
   group: (label: string) => void;
@@ -30,12 +28,11 @@ const browserDebugEnabled = (() => {
   }
 })();
 
-// Create logger that only works in development
 const createLogger = (): Logger => {
   if (isDevelopment || browserDebugEnabled) {
     return {
-      debug: console.log.bind(console),
-      info: console.log.bind(console),
+      debug: console.debug.bind(console),
+      log: console.log.bind(console),
       warn: console.warn.bind(console),
       error: console.error.bind(console),
       group: console.group.bind(console),
@@ -47,7 +44,7 @@ const createLogger = (): Logger => {
   const noop = () => {};
   return {
     debug: noop,
-    info: noop,
+    log: noop,
     warn: noop,
     error: noop,
     group: noop,
@@ -58,4 +55,4 @@ const createLogger = (): Logger => {
 export const logger = createLogger();
 
 // For backwards compatibility, also export individual functions
-export const { debug, info, warn, error } = logger;
+export const { debug, log, warn, error } = logger;

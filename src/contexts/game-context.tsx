@@ -8,47 +8,51 @@ import React, {
   ReactNode,
   useEffect,
 } from "react";
+import { logger } from "@/lib/logger";
 import {
-  GameConfig,
-  GameState,
-  ProviderConfig,
-  Choice,
-  GameRound,
+  IGameState,
+  IChoice,
+  IGameRound,
+  ISettings,
+  IProviderConfig,
 } from "@/types/game";
 import { ProviderFactory } from "@/lib/providers/provider-factory";
 import { toast } from "sonner";
+import { providerData } from "@/components/home/constants";
 
 interface GameContextType {
-  gameConfig: GameConfig;
-  gameState: GameState;
-  sessionSeed: string;
-  allRounds: GameRound[] | null;
-  currentRoundData: GameRound | null;
+  apiKey?: string;
+  settings: ISettings;
+  gameState: IGameState;
+  allRounds: IGameRound[] | null;
+  currentRoundData: IGameRound | null;
   isLoading: boolean;
   loadingMessage?: string;
-  updateConfig: (config: Partial<GameConfig>) => void;
+  isLoadingSettings: boolean;
+  // Actions
+  updateSettings: (settings: ISettings) => void;
   startGame: () => Promise<void>;
-  makeChoice: (choice: Choice) => Promise<void>;
+  makeChoice: (choice: IChoice) => Promise<void>;
   resetGame: () => void;
-  testConnection: () => Promise<boolean>;
-  testConnectionWith: (config: ProviderConfig) => Promise<boolean>;
 }
 
-const defaultConfig: GameConfig = {
-  rounds: 2,
-  choicesPerRound: 2,
+const defaultSettings: ISettings = {
+  gameConfig: {
+    rounds: 2,
+    choicesPerRound: 2,
+  },
   providerConfig: {
-    provider: "gemini",
+    provider: "openai",
   },
 };
 
-const defaultGameState: GameState = {
+const defaultGameState: IGameState = {
   status: "idle",
   currentRound: 0,
   narrativeState: {
     location: "Unknown",
     status: "Ready",
-    items: [],
+    initItems: [],
   },
   choiceHistory: [],
 };
@@ -56,17 +60,74 @@ const defaultGameState: GameState = {
 const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export function GameProvider({ children }: { children: ReactNode }) {
-  const [gameConfig, setGameConfig] = useState<GameConfig>(defaultConfig);
-  const [gameState, setGameState] = useState<GameState>(defaultGameState);
-  const [sessionSeed] = useState(() => Math.random().toString(36).substring(7));
-  const [allRounds, setAllRounds] = useState<GameRound[] | null>(null);
-  const [currentRoundData, setCurrentRoundData] = useState<GameRound | null>(
+  const [settings, setSettings] = useState<ISettings>(defaultSettings);
+  const [gameState, setGameState] = useState<IGameState>(defaultGameState);
+  const [allRounds, setAllRounds] = useState<IGameRound[] | null>(null);
+  const [currentRoundData, setCurrentRoundData] = useState<IGameRound | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
   const [loadingMessage, setLoadingMessage] = useState<string | undefined>(
     undefined
   );
+
+  // Load settings from localStorage on component mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        setIsLoadingSettings(true);
+
+        const savedSettings = localStorage.getItem("jadeCompassSettings");
+        if (savedSettings) {
+          const parsed = JSON.parse(savedSettings);
+
+          // Apply saved settings to game config immediately
+          const newSettings: ISettings = {
+            gameConfig: {
+              rounds: parsed.gameConfig?.rounds || 2,
+              choicesPerRound: parsed.gameConfig?.choicesPerRound || 2,
+            },
+            providerConfig: {
+              provider: parsed.providerConfig?.provider || "openai",
+              model:
+                parsed.providerConfig?.model ||
+                providerData?.openrouter?.defaultModel,
+              customModel: parsed.providerConfig?.customModel || "",
+              apiKeyManager: parsed.providerConfig?.apiKeyManager || {},
+            },
+          };
+
+          setSettings(newSettings);
+        } else {
+          // If no saved settings, initialize with defaults and save them
+          const defaultSettings: ISettings = {
+            gameConfig: {
+              rounds: 2,
+              choicesPerRound: 2,
+            },
+            providerConfig: {
+              provider: "openai",
+              model: providerData?.openai?.defaultModel,
+              customModel: "",
+            },
+          };
+
+          setSettings(defaultSettings);
+          localStorage.setItem(
+            "jadeCompassSettings",
+            JSON.stringify(defaultSettings)
+          );
+        }
+      } catch (e) {
+        console.error("Failed to load settings:", e);
+      } finally {
+        setIsLoadingSettings(false);
+      }
+    };
+
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     if (
@@ -78,45 +139,54 @@ export function GameProvider({ children }: { children: ReactNode }) {
     }
   }, [gameState.currentRound, allRounds]);
 
-  const updateConfig = useCallback((config: Partial<GameConfig>) => {
-    setGameConfig((prev) => ({ ...prev, ...config }));
-  }, []);
+  const updateSettings = useCallback((newSettings: ISettings) => {
+    setSettings((prev) => {
+      const updated: ISettings = {
+        ...prev,
+        gameConfig: {
+          ...prev.gameConfig,
+          ...newSettings.gameConfig,
+        },
+        providerConfig: {
+          ...prev.providerConfig,
+          ...newSettings.providerConfig,
+        } as IProviderConfig,
+      };
 
-  const testConnectionWith = useCallback(async (config: ProviderConfig) => {
-    try {
-      setIsLoading(true);
-      setLoadingMessage("Testing connection…");
-      const testProvider = ProviderFactory.create(config);
-      const result = await testProvider.testConnection();
-      if (result) {
-        toast.success("Connection successful!");
-      } else {
-        toast.error("Connection failed. Please check your settings.");
-      }
-      return result;
-    } catch (error) {
-      toast.error("Connection failed: " + (error as Error).message);
-      return false;
-    } finally {
-      setIsLoading(false);
-      setLoadingMessage(undefined);
-    }
-  }, []);
+      // Save to localStorage
+      localStorage.setItem(
+        "jadeCompassSettings",
+        JSON.stringify({
+          ...updated,
+          providerConfig: {
+            ...updated.providerConfig,
+            apiKeyManager: undefined,
+          },
+        })
+      );
 
-  const testConnection = useCallback(async () => {
-    return testConnectionWith(gameConfig.providerConfig);
-  }, [gameConfig.providerConfig, testConnectionWith]);
+      return updated;
+    });
+  }, []);
 
   const startGame = useCallback(async () => {
     try {
-      const provider = ProviderFactory.create(gameConfig.providerConfig);
+      const { providerConfig, gameConfig } = settings;
+      if (!providerConfig) {
+        throw new Error("Provider configuration is required");
+      }
+      const provider = ProviderFactory.create(providerConfig);
       setIsLoading(true);
       setLoadingMessage("Generating your adventure…");
 
+      const rounds = gameConfig?.rounds || 2;
+      const choicesPerRound = gameConfig?.choicesPerRound || 2;
+
       const storyData = await provider.generateFullStory(
-        gameConfig.rounds,
-        gameConfig.choicesPerRound,
-        sessionSeed
+        rounds,
+        choicesPerRound,
+        gameConfig?.contentLanguage || "Vietnamese",
+        provider.generateRequestId()
       );
 
       if (!storyData || !storyData.rounds || storyData.rounds.length === 0) {
@@ -129,42 +199,39 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setGameState({
         status: "playing",
         currentRound: 1,
-        narrativeState:
-          storyData.rounds[0].narrative_state ||
-          defaultGameState.narrativeState,
+        narrativeState: storyData.rounds[0].narrativeState,
         choiceHistory: [],
         intro: storyData.intro,
+        overallTheme: storyData.overallTheme,
       });
     } catch (error) {
       toast.error("Failed to start game: " + (error as Error).message);
-      console.error("Start game error:", error);
+      logger.error("Start game error:", error);
     } finally {
       setIsLoading(false);
       setLoadingMessage(undefined);
     }
-  }, [gameConfig, sessionSeed]);
+  }, [settings.gameConfig]);
 
   const makeChoice = useCallback(
-    async (choice: Choice) => {
+    async (choice: IChoice) => {
       if (!allRounds) return;
 
-      const newHistory = [...gameState.choiceHistory, choice];
-
-      if (!choice.is_correct) {
-        setGameState((prev) => ({
+      if (!choice.isCorrect) {
+        setGameState((prev: IGameState) => ({
           ...prev,
           status: "failure",
           failureReason: choice.consequence,
-          choiceHistory: newHistory,
+          choiceHistory: [...prev.choiceHistory, choice],
         }));
         return;
       }
 
-      if (gameState.currentRound >= gameConfig.rounds) {
-        setGameState((prev) => ({
+      if (gameState.currentRound >= (settings.gameConfig?.rounds || 2)) {
+        setGameState((prev: IGameState) => ({
           ...prev,
           status: "victory",
-          choiceHistory: newHistory,
+          choiceHistory: [...prev.choiceHistory, choice],
         }));
         return;
       }
@@ -173,15 +240,15 @@ export function GameProvider({ children }: { children: ReactNode }) {
       if (nextRoundIndex < allRounds.length) {
         const nextRound = allRounds[nextRoundIndex];
         setCurrentRoundData(nextRound);
-        setGameState((prev) => ({
+        setGameState((prev: IGameState) => ({
           ...prev,
           currentRound: prev.currentRound + 1,
-          narrativeState: nextRound.narrative_state || prev.narrativeState,
-          choiceHistory: newHistory,
+          narrativeState: nextRound.narrativeState || prev.narrativeState,
+          choiceHistory: [...prev.choiceHistory, choice],
         }));
       }
     },
-    [allRounds, gameState, gameConfig]
+    [allRounds, gameState, settings.gameConfig]
   );
 
   const resetGame = useCallback(() => {
@@ -190,28 +257,53 @@ export function GameProvider({ children }: { children: ReactNode }) {
     setCurrentRoundData(null);
   }, []);
 
-  const value = {
-    gameConfig,
-    gameState,
-    sessionSeed,
-    allRounds,
-    currentRoundData,
-    isLoading,
-    loadingMessage,
-  };
+  const apiKey = React.useMemo(
+    () =>
+      settings.providerConfig?.apiKeyManager?.[
+        settings.providerConfig?.provider || "openai"
+      ],
+    [settings.providerConfig?.provider, settings.providerConfig?.apiKeyManager]
+  );
+  const values = React.useMemo(
+    () => ({
+      apiKey,
+      settings,
+      gameState,
+      allRounds,
+      currentRoundData,
+      isLoading,
+      loadingMessage,
+      isLoadingSettings,
+    }),
+    [
+      apiKey,
+      settings,
+      gameState,
+      allRounds,
+      currentRoundData,
+      isLoading,
+      loadingMessage,
+      isLoadingSettings,
+    ]
+  );
 
-  console.log("value", value);
+  const methods = React.useMemo(
+    () => ({
+      startGame,
+      makeChoice,
+      resetGame,
+      updateSettings,
+    }),
+    [startGame, makeChoice, resetGame, updateSettings]
+  );
+
+  logger.log("GameContext values:", values);
 
   return (
     <GameContext.Provider
       value={{
-        ...value,
-        updateConfig,
-        startGame,
-        makeChoice,
-        resetGame,
-        testConnection,
-        testConnectionWith,
+        ...values,
+        ...methods,
       }}
     >
       {isLoading && (
@@ -226,7 +318,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
               <span className="w-3 h-3 bg-[var(--primary)]/60 animate-bounce"></span>
             </div>
             {loadingMessage && (
-              <div className="font-retro text-sm text-[var(--muted-foreground)]">
+              <div className="font-retro text-base text-[var(--muted-foreground)]">
                 {loadingMessage}
               </div>
             )}
