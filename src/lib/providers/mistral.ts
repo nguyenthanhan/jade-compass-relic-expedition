@@ -55,7 +55,7 @@ export class MistralProvider extends BaseLLMProvider {
         throw new Error(`${this.name} API key is not configured`);
       }
 
-      let responseTime: number;
+      const responseTime = Date.now() - startTime;
 
       const response = await this.client.chat.complete({
         model: this.model,
@@ -72,8 +72,6 @@ export class MistralProvider extends BaseLLMProvider {
         temperature: 0.7,
         // maxTokens: 4000,
       });
-
-      responseTime = Date.now() - startTime;
 
       const jsonText = parseJSONResponse<object>(
         (response.choices[0].message.content as string) || ""

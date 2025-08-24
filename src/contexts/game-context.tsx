@@ -192,7 +192,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [settings.providerConfig]);
+  }, [settings]);
 
   const startGame = useCallback(async () => {
     try {
@@ -236,7 +236,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       setLoadingMessage(undefined);
     }
-  }, [settings.gameConfig, settings.providerConfig]);
+  }, [settings]);
 
   const makeChoice = useCallback(
     async (choice: IChoice) => {
