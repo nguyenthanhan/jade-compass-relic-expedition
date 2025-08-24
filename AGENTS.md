@@ -62,7 +62,7 @@
 ## State Management
 
 - **React Context**: Use contexts for global state (e.g., game state, settings).
-- **Local Storage**: Store user preferences and API keys locally (never on server).
+- **Secrets Handling**: API keys kept in-memory only (not stored in Local Storage).
 - **State Updates**: Use immutable updates and avoid direct mutations.
 - **Performance**: Implement proper dependency arrays in useEffect and useMemo.
 - **Auto-save**: Settings are automatically saved when changed (rounds, choices, provider, model).

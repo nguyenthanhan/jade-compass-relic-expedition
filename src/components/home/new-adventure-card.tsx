@@ -24,6 +24,39 @@ export function NewAdventureCard({
   const { settings, updateSettings } = useGame();
   const { gameConfig } = settings;
 
+  const onChangeRound = (e: React.ChangeEvent<HTMLInputElement>) =>
+    updateSettings({
+      gameConfig: {
+        ...(gameConfig ?? {}),
+        rounds: Math.max(
+          2,
+          Math.min(
+            10,
+            Number.isNaN(parseInt(e.target.value, 10))
+              ? 2
+              : parseInt(e.target.value, 10)
+          )
+        ),
+      },
+    });
+
+  const onChangeChoicesPerRound = (e: React.ChangeEvent<HTMLInputElement>) => {
+    updateSettings({
+      gameConfig: {
+        ...(gameConfig ?? {}),
+        choicesPerRound: Math.max(
+          2,
+          Math.min(
+            5,
+            Number.isNaN(parseInt(e.target.value, 10))
+              ? 2
+              : parseInt(e.target.value, 10)
+          )
+        ),
+      },
+    });
+  };
+
   return (
     <Card className="relative flex-1">
       <CardHeader>
@@ -45,13 +78,7 @@ export function NewAdventureCard({
                 min="2"
                 max="10"
                 value={gameConfig?.rounds ?? 2}
-                onChange={(e) =>
-                  updateSettings({
-                    gameConfig: {
-                      rounds: parseInt(e.target.value) || 2,
-                    },
-                  })
-                }
+                onChange={onChangeRound}
                 className="w-full"
               />
             </div>
@@ -64,13 +91,7 @@ export function NewAdventureCard({
                 min="2"
                 max="5"
                 value={gameConfig?.choicesPerRound ?? 2}
-                onChange={(e) =>
-                  updateSettings({
-                    gameConfig: {
-                      choicesPerRound: parseInt(e.target.value) || 2,
-                    },
-                  })
-                }
+                onChange={onChangeChoicesPerRound}
                 className="w-full"
               />
             </div>

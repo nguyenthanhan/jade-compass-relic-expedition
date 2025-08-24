@@ -84,10 +84,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         parsedResponse,
         responseTime,
         undefined,
-        {
-          model: this.model,
-          usage: response.usage,
-        }
+        undefined
       );
 
       return parsedResponse;
@@ -103,10 +100,7 @@ export class AnthropicProvider extends BaseLLMProvider {
         undefined,
         responseTime,
         errorMessage,
-        {
-          model: this.model,
-          usage: undefined,
-        }
+        undefined
       );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);

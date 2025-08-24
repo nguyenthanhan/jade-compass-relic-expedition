@@ -19,14 +19,12 @@ export abstract class BaseLLMProvider implements LLMProvider {
     this.model = model;
   }
 
-  async generateFullStory(
+  abstract generateFullStory(
     totalRounds: number,
     choicesPerRound: number,
     contentLanguage: ContentLanguageType,
     seed: string
-  ): Promise<IFullStoryResponse> {
-    throw new Error("generateFullStory method must be implemented by subclass");
-  }
+  ): Promise<IFullStoryResponse>;
 
   protected createFullStorySystemPrompt({
     contentLanguage,
@@ -63,13 +61,25 @@ Requirements:
 1. Create a compelling introduction that sets up the adventure
 2. Generate ${totalRounds} interconnected rounds forming a complete story arc
 3. Each round must have exactly ${choicesPerRound} choices
-4. Only ONE correct choice (is_correct: true) per round
+4. Only ONE correct choice (isCorrect: true) per round
 5. Ensure the correct answer position varies between rounds
 6. Each choice must have clear consequences that affect the story
 7. Maintain consistency in setting and characters
 8. Include rich descriptions of locations, characters, and items
 9. Each round should meaningfully advance the plot
 10. The ending should be satisfying and consistent with the story flow
+11. initItems is the initial items in the inventory before the choice is made
+12. finalItems is the final items in the inventory after the choice is made
+13. storyProgress is the summary of story events up to this point
+14. location is the current location
+15. status is the current status of the character
+16. isCorrect is the correct choice
+17. consequence is the consequence of the choice
+18. id is the id of the choice
+19. title is the title of the choice
+20. summary is the summary of the choice
+21. isCorrect is the correct choice
+22. consequence is the consequence of the choice
 
 Response Format (JSON only):
 {
@@ -107,6 +117,21 @@ Response Format (JSON only):
     }
   ]
 }`;
+  }
+
+  //create next round story prompt
+  protected createNextRoundStoryPrompt(
+    totalRounds: number,
+    choicesPerRound: number
+  ): string {
+    return `Generate a complete ${totalRounds}-round treasure hunting adventure.
+
+    Requirements:
+    1. Create a compelling introduction that sets up the adventure
+    2. Generate ${totalRounds} interconnected rounds forming a complete story arc
+    3. Each round must have exactly ${choicesPerRound} choices
+    4. Only ONE correct choice (isCorrect: true) per round
+    `;
   }
 
   // Helper methods for consistent logging

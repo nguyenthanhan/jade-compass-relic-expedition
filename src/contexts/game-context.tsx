@@ -82,6 +82,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
         if (savedSettings) {
           const parsed = JSON.parse(savedSettings);
 
+          const provider = parsed.providerConfig?.provider || "openai";
+          const defaults =
+            providerData?.[provider as keyof typeof providerData];
           // Apply saved settings to game config immediately
           const newSettings: ISettings = {
             gameConfig: {
@@ -89,10 +92,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
               choicesPerRound: parsed.gameConfig?.choicesPerRound || 2,
             },
             providerConfig: {
-              provider: parsed.providerConfig?.provider || "openai",
-              model:
-                parsed.providerConfig?.model ||
-                providerData?.openrouter?.defaultModel,
+              provider,
+              apiBase: defaults?.apiBase,
+              model: parsed.providerConfig?.model || defaults?.defaultModel,
               customModel: parsed.providerConfig?.customModel || "",
               apiKeyManager: parsed.providerConfig?.apiKeyManager || {},
             },
@@ -211,7 +213,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       setIsLoading(false);
       setLoadingMessage(undefined);
     }
-  }, [settings.gameConfig]);
+  }, [settings.gameConfig, settings.providerConfig]);
 
   const makeChoice = useCallback(
     async (choice: IChoice) => {
@@ -297,7 +299,17 @@ export function GameProvider({ children }: { children: ReactNode }) {
     [startGame, makeChoice, resetGame, updateSettings]
   );
 
-  logger.log("GameContext values:", values);
+  logger.debug("GameContext initialized", {
+    gameState,
+    allRounds: Boolean(allRounds),
+    settings: {
+      ...settings,
+      providerConfig: {
+        ...settings.providerConfig,
+        apiKeyManager: undefined,
+      },
+    },
+  });
 
   return (
     <GameContext.Provider
