@@ -31,6 +31,9 @@
   --border: #8b7355;
   --input: #8b7355;
   --ring: #4a7c59;
+
+  /* Fonts */
+  --font-space-mono: "Space Mono", monospace;
 }
 
 @theme inline {

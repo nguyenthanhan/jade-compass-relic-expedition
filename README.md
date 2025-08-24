@@ -208,12 +208,11 @@ src/
 - `pnpm run start` - Start production server
 - `pnpm run lint` - Run ESLint for code quality
 - `pnpm run type-check` - Run TypeScript type checking
-- `pnpm run clean` - Clean build cache and dependencies
 
 ## 🔒 Security
 
-- API keys are stored in your browser's `localStorage` for convenience
-- They are never logged or transmitted to any server
+- They are never logged or transmitted to our own backend
+- Requests are sent directly from your browser to the selected provider’s API
 - You can clear them by clearing your browser's site data
 - HTTPS recommended for production
 
