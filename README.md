@@ -159,7 +159,7 @@ Story continuity is maintained through a minimal state object containing locatio
 - **Retro Pixel-Art Style**: Authentic 2D pixel-art aesthetic with custom animations
 - **Multiple Endings**: Victory screen with Vietnamese easter egg, detailed failure summaries
 - **Accessibility**: Full keyboard navigation, ARIA labels, focus management
-- **Local Storage-Based**: API keys are saved in your browser's local storage for convenience, but are never transmitted anywhere else
+- **Secrets Handling**: API keys kept in-memory only (not stored in Local Storage)
 - **Responsive Design**: Playable on desktop and mobile devices with Next.js 15 optimizations
 - **Smart Fallbacks**: Graceful degradation when LLM services are unavailable
 - **Modern Web Standards**: Built with the latest Next.js 15 features and React 18+ capabilities

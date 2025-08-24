@@ -32,9 +32,16 @@ export function AIConfigurationCard({
   const selectedProviderData = providerData?.[provider || "openai"];
 
   const updateProvider = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextProvider =
+      (e.target.value as IProviderConfig["provider"]) || "openai";
+    const defaults = providerData?.[nextProvider];
     updateSettings({
       providerConfig: {
-        provider: e.target.value as IProviderConfig["provider"],
+        ...(providerConfig || {}),
+        provider: nextProvider,
+        apiBase: defaults?.apiBase,
+        model: defaults?.defaultModel,
+        customModel: "",
       },
     });
   };
@@ -67,7 +74,7 @@ export function AIConfigurationCard({
           <div className="relative">
             <select
               className="w-full p-2 pr-8 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow text-sm"
-              value={provider}
+              value={provider || "openai"}
               onChange={updateProvider}
             >
               <option value="openrouter">🤖 OpenRouter</option>
@@ -84,14 +91,14 @@ export function AIConfigurationCard({
           <p className="font-retro text-xs">
             {selectedProviderData ? (
               <>
-                Get FREE API key at:{" "}
+                Get your API key at:{" "}
                 <a
-                  href={selectedProviderData.apiBase}
+                  href={`https://${selectedProviderData.link}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[var(--primary)] underline hover:text-[var(--accent)]"
                 >
-                  {selectedProviderData.apiBase}
+                  {selectedProviderData.link}
                 </a>
               </>
             ) : null}

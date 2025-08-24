@@ -162,7 +162,7 @@ If the response is malformed or times out → fallback to **offline event pool**
   - Introduction card with detailed gameplay instructions
 - **Performance Optimizations**: Fixed infinite re-render loops, memoized context values
 - **Responsive Design**: Mobile and desktop compatible
-- **Local Storage**: Secure API key management with automatic persistence
+- **Secrets Handling**: API keys kept in-memory only (not stored in Local Storage)
 
 ### 🔄 Current Implementation
 

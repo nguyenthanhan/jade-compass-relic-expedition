@@ -20,8 +20,14 @@ export function FailurePage() {
           )}
 
           <div className="relative inline-block">
-            <Skull className="h-24 w-24 text-[var(--destructive)] mx-auto" />
-            <X className="h-26 w-26 text-[var(--destructive)] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blink" />
+            <Skull
+              className="h-24 w-24 text-[var(--destructive)] mx-auto"
+              aria-hidden="true"
+            />
+            <X
+              aria-hidden="true"
+              className="h-24 w-24 text-[var(--destructive)] absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 blink"
+            />
           </div>
 
           <h2 className="font-pixel text-3xl text-[var(--destructive)]">

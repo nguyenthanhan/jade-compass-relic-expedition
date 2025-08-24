@@ -2,24 +2,24 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { ChevronDown } from "lucide-react";
 import { providerData } from "./constants";
-import { ISettings } from "@/types/game";
 import { useGame } from "@/contexts/game-context";
 
-interface ModelSelectorProps {}
-
-export function ModelSelector({}: ModelSelectorProps) {
+export function ModelSelector() {
   const { settings, updateSettings } = useGame();
   const { providerConfig } = settings;
-  const models =
-    providerData?.[providerConfig?.provider || "openai"]?.models || [];
-  const model = providerConfig?.model;
+  const provider = providerConfig?.provider || "openai";
+  const providerInfo = providerData?.[provider];
+  const models = providerInfo?.models || [];
+  const model = providerConfig?.model ?? providerInfo?.defaultModel ?? "";
   const customModel = providerConfig?.customModel;
 
   const updateModel = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const next = e.target.value;
     updateSettings({
       providerConfig: {
         ...providerConfig,
-        model: e.target.value,
+        model: next,
+        ...(next !== "__custom__" ? { customModel: undefined } : {}),
       },
     });
   };
@@ -42,8 +42,9 @@ export function ModelSelector({}: ModelSelectorProps) {
       </label>
       <div className="relative">
         <select
+          id="model"
           className="w-full p-2 pr-8 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow mb-2 text-xs focus:border-[var(--primary)] focus:outline-none"
-          value={model || ""}
+          value={model}
           onChange={updateModel}
         >
           {models.map((modelOption) => (

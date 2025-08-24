@@ -25,7 +25,7 @@ export class OpenAIProvider extends BaseLLMProvider {
     this.client = new OpenAI({
       apiKey: this.apiKey,
       baseURL: this.apiBase,
-      dangerouslyAllowBrowser: true,
+      // dangerouslyAllowBrowser: true,
       defaultHeaders: {
         //   "HTTP-Referer": "https://jade-compass.vercel.app",
         "X-Title": "Jade Compass: Relic Expedition",
@@ -65,7 +65,7 @@ export class OpenAIProvider extends BaseLLMProvider {
           { role: "user", content: prompt },
         ],
         temperature: 0.7,
-        seed: seed ? parseInt(seed) : undefined,
+        seed: seed && !isNaN(parseInt(seed)) ? parseInt(seed) : undefined,
       });
 
       const content = response.choices[0]?.message?.content;
@@ -85,10 +85,7 @@ export class OpenAIProvider extends BaseLLMProvider {
         parsedResponse,
         responseTime,
         undefined,
-        {
-          model: this.model,
-          usage: response.usage,
-        }
+        undefined
       );
 
       return parsedResponse;
@@ -104,10 +101,7 @@ export class OpenAIProvider extends BaseLLMProvider {
         undefined,
         responseTime,
         errorMessage,
-        {
-          model: this.model,
-          usage: undefined,
-        }
+        undefined
       );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);
