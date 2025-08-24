@@ -215,8 +215,6 @@ export class VercelAIProvider extends BaseLLMProvider {
         throw new Error(`${this.name} API key is not configured`);
       }
 
-      const responseTime = Date.now() - startTime;
-
       const response = await generateObject({
         model: this.getAIModel(),
         schema: FullStorySchema,
@@ -226,6 +224,9 @@ export class VercelAIProvider extends BaseLLMProvider {
         seed: seed && !isNaN(parseInt(seed)) ? parseInt(seed) : undefined,
       });
 
+      const responseTime = Date.now() - startTime;
+
+      // parse for logs, not need to return
       const parsedResponse = parseToFullStoryResponse(response.object);
 
       this.logResponse(

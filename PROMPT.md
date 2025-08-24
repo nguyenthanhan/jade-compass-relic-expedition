@@ -55,19 +55,19 @@ Providers may extend with extra fields but must preserve this minimal schema.
 
 ```json
 {
-  "intro": "string",        // only for first call
-  "round": number,          // current round index
-  "narrative_state": { ... },
+  "intro": "string",
+  "round": 1,
+  "narrativeState": {},
   "choices": [
     {
-      "id": "string",       // unique identifier
-      "title": "string",    // short evocative label
-      "summary": "string",  // 1–2 sentences outcome
-      "is_correct": true,
-      "consequence": "string" // short update affecting narrative_state
+      "id": "string",
+      "title": "string",
+      "summary": "string",
+      "isCorrect": true,
+      "consequence": "string"
     }
   ],
-  "failure_summary": "string (optional)" // only if run ends here
+  "failureSummary": "string (optional)"
 }
 ```
 
