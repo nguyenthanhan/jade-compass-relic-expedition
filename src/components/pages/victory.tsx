@@ -11,18 +11,18 @@ export function VictoryPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full space-y-8">
-        <div className="text-center space-y-4">
+      <div className="max-w-6xl w-full space-y-8">
+        <div className="text-center space-y-6">
           {gameState.overallTheme && (
-            <h1 className="font-pixel text-3xl text-[var(--accent)] mb-4">
+            <h1 className="font-pixel text-3xl text-[var(--accent)] mb-6">
               {gameState.overallTheme}
             </h1>
           )}
 
-          <div className="relative inline-block">
+          <div className="relative inline-block py-4">
             <Trophy className="h-24 w-24 text-[var(--accent)] animate-bounce mx-auto" />
-            <Sparkles className="h-8 w-8 text-[var(--primary)] absolute -top-2 -right-2 pulse animate-ping" />
-            <Sparkles className="h-6 w-6 text-[var(--primary)] absolute -bottom-1 -left-1 pulse animate-ping" />
+            <Sparkles className="h-8 w-8 text-[var(--primary)] absolute top-0 right-0 pulse animate-ping" />
+            <Sparkles className="h-6 w-6 text-[var(--primary)] absolute bottom-0 left-0 pulse animate-ping" />
           </div>
 
           <h2 className="font-pixel text-3xl text-[var(--primary)]">
@@ -34,7 +34,7 @@ export function VictoryPage() {
           </p>
         </div>
 
-        <Card>
+        <Card className="w-full max-w-6xl mx-auto">
           <CardHeader>
             <CardTitle>Adventure Complete</CardTitle>
           </CardHeader>

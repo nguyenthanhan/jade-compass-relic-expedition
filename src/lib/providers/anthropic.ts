@@ -3,6 +3,7 @@ import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base";
 import { parseToFullStoryResponse } from "@/utils/response-parser";
 import { parseJSONResponse } from "@/utils/string";
+import { logger } from "../logger";
 
 export class AnthropicProvider extends BaseLLMProvider {
   name: string;
@@ -38,7 +39,11 @@ export class AnthropicProvider extends BaseLLMProvider {
     const systemPrompt = this.createFullStorySystemPrompt({
       contentLanguage,
     });
-    const prompt = this.createFullStoryPrompt(totalRounds, choicesPerRound);
+    const prompt = this.createFullStoryPrompt(
+      totalRounds,
+      choicesPerRound,
+      true
+    );
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {
       totalRounds,
@@ -73,7 +78,7 @@ export class AnthropicProvider extends BaseLLMProvider {
 
       const responseTime = Date.now() - startTime;
 
-      const jsonText = parseJSONResponse(content.text);
+      const jsonText = parseJSONResponse<object>(content.text);
 
       const parsedResponse = parseToFullStoryResponse(jsonText);
 
@@ -104,6 +109,17 @@ export class AnthropicProvider extends BaseLLMProvider {
       );
 
       throw new Error(`Failed to generate story: ${errorMessage}`);
+    }
+  }
+
+  async testConnection() {
+    try {
+      const models = await this.client.models.list();
+      logger.log("Anthropic models:", models);
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      throw new Error(`${errorMessage}`);
     }
   }
 }

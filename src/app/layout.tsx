@@ -43,15 +43,15 @@ export default function RootLayout({
       >
         <GameProvider>
           {children}
-          <Toaster 
+          <Toaster
             position="top-center"
             toastOptions={{
               style: {
-                background: 'var(--card)',
-                color: 'var(--card-foreground)',
-                border: '2px solid var(--border)',
-                fontFamily: 'var(--font-space-mono), monospace',
-                fontSize: '22px',
+                background: "var(--card)",
+                color: "var(--card-foreground)",
+                border: "2px solid var(--border)",
+                fontFamily: "var(--font-space-mono), monospace",
+                fontSize: "1rem",
               },
             }}
           />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,9 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Eye, EyeOff, ChevronDown } from "lucide-react";
+import { Eye, EyeOff, ChevronDown, Loader2 } from "lucide-react";
 import { ModelSelector } from "./model-selector";
-import { IProviderConfig } from "@/types/game";
+import { IProviderConfig, ProviderType } from "@/types/game";
 import { providerData } from "./constants";
 import { useGame } from "@/contexts/game-context";
 
@@ -27,6 +27,8 @@ export function AIConfigurationCard({
     apiKey,
     settings: { providerConfig },
     updateSettings,
+    testConnection,
+    isLoading,
   } = useGame();
   const { provider } = providerConfig || {};
   const selectedProviderData = providerData?.[provider || "openai"];
@@ -57,6 +59,13 @@ export function AIConfigurationCard({
     });
   };
 
+  const handleTestConnection = async () => {
+    if (!apiKey) {
+      return;
+    }
+    await testConnection();
+  };
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -71,18 +80,42 @@ export function AIConfigurationCard({
           <label className="font-pixel text-sm mb-2 block text-[var(--primary)]">
             Provider
           </label>
-          <div className="relative">
-            <select
-              className="w-full p-2 pr-8 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow text-sm"
-              value={provider || "openai"}
-              onChange={updateProvider}
+          <div className="flex space-x-2">
+            <div className="relative flex-1">
+              <select
+                className="w-full p-2 pr-8 appearance-none font-retro bg-[var(--background)] border-2 border-[var(--input)] pixel-shadow text-sm"
+                value={provider || "openai"}
+                onChange={updateProvider}
+              >
+                {Object.keys(providerData).map((providerKey) => {
+                  const data = providerData[providerKey as ProviderType];
+                  return (
+                    <option
+                      key={providerKey}
+                      value={providerKey}
+                      className="font-retro text-xs text-[var(--primary)]"
+                    >
+                      {data.providerName}
+                    </option>
+                  );
+                })}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="px-4 font-pixel text-xs"
+              onClick={handleTestConnection}
+              disabled={isLoading || !apiKey}
             >
-              <option value="openrouter">🤖 OpenRouter</option>
-              <option value="openai">🧠 OpenAI</option>
-              <option value="anthropic">🎭 Anthropic</option>
-              <option value="gemini">✨ Google Gemini</option>
-            </select>
-            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--muted-foreground)]" />
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Test Connection"
+              )}
+            </Button>
           </div>
         </div>
 

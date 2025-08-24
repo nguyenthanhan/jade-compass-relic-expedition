@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
   compiler: {
     removeConsole: isProd
       ? {
-          exclude: [],
+          exclude: ["error", "warn"],
         }
       : false,
   },

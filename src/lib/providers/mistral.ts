@@ -1,17 +1,16 @@
-import { OpenAI } from "openai";
+import { Mistral } from "@mistralai/mistralai";
 import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base";
 import { parseToFullStoryResponse } from "@/utils/response-parser";
 import { parseJSONResponse } from "@/utils/string";
 import { logger } from "../logger";
-import { toast } from "sonner";
 
-export class OpenAIProvider extends BaseLLMProvider {
+export class MistralProvider extends BaseLLMProvider {
   name: string;
   protected apiKey: string;
   protected apiBase: string;
   protected model: string;
-  protected client: OpenAI;
+  private client: Mistral;
 
   constructor(apiKey: string, name: string, apiBase: string, model: string) {
     super(apiKey, apiBase, model);
@@ -24,15 +23,7 @@ export class OpenAIProvider extends BaseLLMProvider {
       throw new Error(`${name} API key is required`);
     }
 
-    this.client = new OpenAI({
-      apiKey: this.apiKey,
-      baseURL: this.apiBase,
-      dangerouslyAllowBrowser: true,
-      defaultHeaders: {
-        //   "HTTP-Referer": "https://jade-compass.vercel.app",
-        "X-Title": "Jade Compass: Relic Expedition",
-      },
-    });
+    this.client = new Mistral({ apiKey: this.apiKey });
   }
 
   async generateFullStory(
@@ -48,7 +39,7 @@ export class OpenAIProvider extends BaseLLMProvider {
     const prompt = this.createFullStoryPrompt(
       totalRounds,
       choicesPerRound,
-      true
+      false
     );
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {
@@ -64,24 +55,29 @@ export class OpenAIProvider extends BaseLLMProvider {
         throw new Error(`${this.name} API key is not configured`);
       }
 
-      const response = await this.client.chat.completions.create({
+      let responseTime: number;
+
+      const response = await this.client.chat.complete({
         model: this.model,
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: prompt },
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: prompt,
+          },
         ],
         temperature: 0.7,
-        seed: seed && !isNaN(parseInt(seed)) ? parseInt(seed) : undefined,
+        // maxTokens: 4000,
       });
 
-      const content = response.choices[0]?.message?.content;
-      if (!content) {
-        throw new Error(`No content in response from ${this.name}`);
-      }
+      responseTime = Date.now() - startTime;
 
-      const responseTime = Date.now() - startTime;
-
-      const jsonText = parseJSONResponse<object>(content);
+      const jsonText = parseJSONResponse<object>(
+        (response.choices[0].message.content as string) || ""
+      );
       const parsedResponse = parseToFullStoryResponse(jsonText);
 
       this.logResponse(
@@ -117,7 +113,7 @@ export class OpenAIProvider extends BaseLLMProvider {
   async testConnection() {
     try {
       const models = await this.client.models.list();
-      logger.log("OpenAI models:", models);
+      logger.log("Mistral models:", models);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);
