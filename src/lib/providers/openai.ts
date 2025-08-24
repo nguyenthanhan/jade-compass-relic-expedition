@@ -4,7 +4,6 @@ import { BaseLLMProvider } from "./base";
 import { parseToFullStoryResponse } from "@/utils/response-parser";
 import { parseJSONResponse } from "@/utils/string";
 import { logger } from "../logger";
-import { toast } from "sonner";
 
 export class OpenAIProvider extends BaseLLMProvider {
   name: string;

@@ -1,3 +1,16 @@
 {
-  "cSpell.words": ["AISDK", "DEEPSEEK", "groq", "mistralai", "openrouter"]
+  "cSpell.words": ["AISDK", "DEEPSEEK", "groq", "mistralai", "openrouter"],
+  "eslint.enable": true,
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "eslint.workingDirectories": ["."],
+  "eslint.run": "onType",
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "explicit"
+  }
 }
