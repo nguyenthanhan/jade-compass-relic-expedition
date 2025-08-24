@@ -136,6 +136,8 @@ If the response is malformed or times out → fallback to **offline event pool**
 
 - Accessibility: semantic HTML, ARIA roles, focus management, keyboard-only flow.
 - Robust handling for: network errors, timeouts, malformed JSON.
+- **Error Handling**: Clear, actionable error messages for connection issues and API failures.
+- **User Feedback**: Meaningful error messages instead of cryptic error codes or object representations.
 - No sensitive data logging; never display or echo API keys.
 - Narrative must always remain: **concise, vivid, treasure-hunt themed**.
 
@@ -147,6 +149,7 @@ If the response is malformed or times out → fallback to **offline event pool**
 
 - **Core Game Engine**: Round-based choice system with narrative state management
 - **Provider Adapter Pattern**: OpenAI, OpenRouter, Anthropic, and Google Gemini integration
+- **Error Handling**: Enhanced error handling across all LLM providers with meaningful user feedback
 - **Offline Fallback System**: Robust event pool with 8+ unique scenarios
 - **Settings Management**: API key storage, provider selection, model configuration with auto-save
 - **Code Architecture**:
@@ -162,7 +165,7 @@ If the response is malformed or times out → fallback to **offline event pool**
   - Introduction card with detailed gameplay instructions
 - **Performance Optimizations**: Fixed infinite re-render loops, memoized context values
 - **Responsive Design**: Mobile and desktop compatible
-- **Secrets Handling**: API keys kept in-memory only (not stored in Local Storage)
+- **Secrets Handling**: API keys stored in browser localStorage for convenience
 
 ### 🔄 Current Implementation
 
@@ -219,5 +222,6 @@ If the response is malformed or times out → fallback to **offline event pool**
 - **Accessibility**: Screen reader optimization, high contrast mode
 - **Internationalization**: Multi-language support for global players
 - **Code Quality**: Continue refactoring other large components
-- **Testing**: Add comprehensive test coverage for new components
-- **Documentation**: Keep documentation updated with new features
+- **Testing**: Add comprehensive test coverage for new components and error handling
+- **Documentation**: Keep documentation updated with new features and error handling patterns
+- **Error Monitoring**: Implement error tracking and analytics for better debugging

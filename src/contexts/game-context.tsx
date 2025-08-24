@@ -34,6 +34,7 @@ interface GameContextType {
   startGame: () => Promise<void>;
   makeChoice: (choice: IChoice) => Promise<void>;
   resetGame: () => void;
+  testConnection: () => Promise<void>;
 }
 
 const defaultSettings: ISettings = {
@@ -171,6 +172,28 @@ export function GameProvider({ children }: { children: ReactNode }) {
     });
   }, []);
 
+  const testConnection = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const { providerConfig } = settings;
+      if (!providerConfig) {
+        throw new Error("Provider configuration is required");
+      }
+      console.log("providerConfig :", providerConfig);
+      const provider = ProviderFactory.create(providerConfig);
+      await provider.testConnection();
+
+      toast.success("Connection test completed");
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      toast.error(`${errorMessage}`);
+      logger.error("Test connection error:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [settings.providerConfig]);
+
   const startGame = useCallback(async () => {
     try {
       const { providerConfig, gameConfig } = settings;
@@ -295,8 +318,9 @@ export function GameProvider({ children }: { children: ReactNode }) {
       makeChoice,
       resetGame,
       updateSettings,
+      testConnection,
     }),
-    [startGame, makeChoice, resetGame, updateSettings]
+    [startGame, makeChoice, resetGame, updateSettings, testConnection]
   );
 
   logger.debug("GameContext initialized", {

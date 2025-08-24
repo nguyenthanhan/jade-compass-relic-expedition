@@ -175,7 +175,7 @@ export function GamePage() {
                 <h3 className="font-pixel text-sm text-[var(--primary)] mb-2">
                   Round Description
                 </h3>
-                <p className="font-retro text-sm text-[var(--muted-foreground)]">
+                <p className="font-retro text-sm text-[var(--muted-foreground)] mb-2">
                   {currentRoundData.intro}
                 </p>
               </div>

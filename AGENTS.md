@@ -43,12 +43,25 @@
 ## LLM Provider Development
 
 - **Adapter Pattern**: All providers must implement the same interface for consistency.
-- **Error Handling**: Implement robust fallback to offline mode on failures.
+- **Error Handling**: Implement robust fallback to offline mode on failures with clear error messages.
 - **Type Safety**: Use strict typing for provider responses and error states.
 - **Testing**: Mock network calls in tests; avoid real API calls during development.
 - **Provider Support**: Currently supports OpenAI, OpenRouter, Anthropic, and Google Gemini.
 - **API Base URLs**: Use correct API endpoints from centralized constants.
 - **CORS Handling**: Proper CORS configuration for cross-origin requests.
+- **Error Messages**: Provide meaningful error messages in `testConnection()` and other methods for better user experience.
+
+## Error Handling Best Practices
+
+- **User-Friendly Messages**: Always extract meaningful error messages from Error objects before throwing new errors.
+- **Consistent Pattern**: Use the established pattern for error handling across all providers:
+  ```typescript
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  throw new Error(`${errorMessage}`);
+  ```
+- **Fallback Handling**: Implement graceful fallbacks when LLM services are unavailable.
+- **Logging**: Log errors for debugging while maintaining user privacy (never log API keys).
+- **Toast Notifications**: Use toast notifications to inform users of connection issues or failures.
 
 ## Testing Guidelines
 
@@ -62,7 +75,7 @@
 ## State Management
 
 - **React Context**: Use contexts for global state (e.g., game state, settings).
-- **Secrets Handling**: API keys kept in-memory only (not stored in Local Storage).
+- **Secrets Handling**: API keys stored in browser localStorage for user convenience.
 - **State Updates**: Use immutable updates and avoid direct mutations.
 - **Performance**: Implement proper dependency arrays in useEffect and useMemo.
 - **Auto-save**: Settings are automatically saved when changed (rounds, choices, provider, model).
@@ -78,6 +91,7 @@
 
 ## Recent Improvements & Best Practices
 
+- **Error Handling**: Improved error handling across all LLM providers with meaningful error messages
 - **Model Selection**: Keep model lists simple with only essential properties (`value`).
 - **Modal Layout**: Position action buttons logically in modal footers.
 - **Button Styling**: Use semantic button variants for better visual hierarchy.

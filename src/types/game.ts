@@ -40,9 +40,10 @@ export interface LLMProvider {
   ): Promise<IFullStoryResponse>;
 
   generateRequestId(): string;
+
+  testConnection(): Promise<void>;
 }
 
-export type ProviderType = "openrouter" | "openai" | "anthropic" | "gemini";
 export interface IProviderConfig {
   provider?: ProviderType;
   apiBase?: string;
@@ -74,3 +75,30 @@ export interface ISettings {
 }
 
 export type ContentLanguageType = "Vietnamese" | "English";
+
+export type PopularProviderType =
+  | "openrouter"
+  | "openai"
+  | "anthropic"
+  | "google"
+  | "mistral";
+
+export type AISDKProviderType =
+  | "openai-ai-sdk"
+  | "anthropic-ai-sdk"
+  | "google-ai-sdk"
+  | "groq-ai-sdk"
+  | "mistral-ai-sdk"
+  | "openrouter-ai-sdk";
+
+export type ProviderType = PopularProviderType | AISDKProviderType;
+
+export type ProviderDataType = {
+  [key in ProviderType]: {
+    providerName: string;
+    apiBase: string;
+    link: string;
+    models: { value: string; label?: string }[];
+    defaultModel: string;
+  };
+};

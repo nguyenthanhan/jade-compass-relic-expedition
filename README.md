@@ -128,6 +128,15 @@ No configuration needed! The game includes a rich pool of pre-written adventure 
 
 The game uses an adapter pattern for LLM providers, making it easy to add new AI providers. Each provider implements a consistent interface for generating game events. Currently supports OpenAI, OpenRouter, Anthropic, and Google Gemini.
 
+### Error Handling & User Experience
+
+All LLM providers now feature improved error handling that provides clear, actionable error messages to users. When testing connections or generating content fails, users receive meaningful feedback instead of cryptic error codes. This includes:
+
+- **Connection Testing**: Clear feedback when API keys are invalid or network issues occur
+- **Content Generation**: Descriptive error messages for rate limits, model issues, or API failures
+- **Fallback System**: Automatic fallback to offline mode with user notification
+- **Debugging Support**: Enhanced logging for developers while maintaining user privacy
+
 ### Narrative State Management
 
 Story continuity is maintained through a minimal state object containing location, status, and items. The state evolves with each choice, creating a cohesive adventure narrative.
@@ -159,7 +168,7 @@ Story continuity is maintained through a minimal state object containing locatio
 - **Retro Pixel-Art Style**: Authentic 2D pixel-art aesthetic with custom animations
 - **Multiple Endings**: Victory screen with Vietnamese easter egg, detailed failure summaries
 - **Accessibility**: Full keyboard navigation, ARIA labels, focus management
-- **Secrets Handling**: API keys kept in-memory only (not stored in Local Storage)
+- **Secrets Handling**: API keys stored in browser localStorage for convenience
 - **Responsive Design**: Playable on desktop and mobile devices with Next.js 15 optimizations
 - **Smart Fallbacks**: Graceful degradation when LLM services are unavailable
 - **Modern Web Standards**: Built with the latest Next.js 15 features and React 18+ capabilities
@@ -210,6 +219,7 @@ src/
 
 ## 🚀 Recent Updates
 
+- **Error Handling Improvements**: Enhanced error handling across all LLM providers for better user experience and debugging
 - **Code Refactoring**: Split home page into smaller, maintainable components
 - **Custom Hooks**: Extracted settings logic into reusable `useSettings` hook
 - **Constants Management**: Centralized provider data and model lists

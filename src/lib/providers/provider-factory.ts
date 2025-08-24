@@ -1,8 +1,10 @@
 import { LLMProvider, IProviderConfig } from "@/types/game";
 import { OpenAIProvider } from "./openai";
 import { AnthropicProvider } from "./anthropic";
-import { GeminiProvider } from "./gemini";
+import { GoogleProvider } from "./google";
+import { VercelAIProvider } from "./vercel";
 import { providerData } from "@/components/home";
+import { MistralProvider } from "./mistral";
 
 export class ProviderFactory {
   static create(config: IProviderConfig): LLMProvider {
@@ -49,19 +51,89 @@ export class ProviderFactory {
           effectiveModel || providerData.anthropic.defaultModel
         );
 
-      case "gemini":
+      case "google":
         if (!apiKey) {
-          throw new Error("API key is required for Gemini");
+          throw new Error("API key is required for Google");
         }
-        return new GeminiProvider(
+        return new GoogleProvider(
           apiKey,
-          "Google Gemini",
-          providerData.gemini.apiBase,
-          effectiveModel || providerData.gemini.defaultModel
+          "Google",
+          providerData.google.apiBase,
+          effectiveModel || providerData.google.defaultModel
         );
 
+      case "mistral":
+        if (!apiKey) {
+          throw new Error("API key is required for Mistral");
+        }
+        return new MistralProvider(
+          apiKey,
+          "Mistral",
+          providerData.mistral.apiBase,
+          effectiveModel || providerData.mistral.defaultModel
+        );
+
+      case "anthropic-ai-sdk":
+        if (!apiKey) {
+          throw new Error("API key is required for Anthropic AI SDK");
+        }
+        return new VercelAIProvider(
+          apiKey,
+          providerInfo.name,
+          providerInfo.apiBase,
+          effectiveModel || providerInfo.defaultModel,
+          provider
+        );
+
+      case "google-ai-sdk":
+        if (!apiKey) {
+          throw new Error("API key is required for Google AI SDK");
+        }
+        return new VercelAIProvider(
+          apiKey,
+          providerInfo.name,
+          providerInfo.apiBase,
+          effectiveModel || providerInfo.defaultModel,
+          provider
+        );
+
+      case "groq-ai-sdk":
+        if (!apiKey) {
+          throw new Error("API key is required for Groq AI SDK");
+        }
+        return new VercelAIProvider(
+          apiKey,
+          providerInfo.name,
+          providerInfo.apiBase,
+          effectiveModel || providerInfo.defaultModel,
+          provider
+        );
+
+      case "mistral-ai-sdk":
+        if (!apiKey) {
+          throw new Error("API key is required for Mistral AI SDK");
+        }
+        return new VercelAIProvider(
+          apiKey,
+          providerInfo.name,
+          providerInfo.apiBase,
+          effectiveModel || providerInfo.defaultModel,
+          provider
+        );
+
+      case "openrouter-ai-sdk":
+        if (!apiKey) {
+          throw new Error("API key is required for OpenRouter AI SDK");
+        }
+        return new VercelAIProvider(
+          apiKey,
+          providerInfo.name,
+          providerInfo.apiBase,
+          effectiveModel || providerInfo.defaultModel,
+          provider
+        );
       default:
-        throw new Error(`Unknown provider: ${String(provider)}`);
+        throw new Error(`Unsupported provider: ${provider}`);
     }
   }
 }

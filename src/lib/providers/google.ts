@@ -1,17 +1,16 @@
-import { OpenAI } from "openai";
+import { GoogleGenAI } from "@google/genai";
 import { ContentLanguageType, IFullStoryResponse } from "@/types/game";
 import { BaseLLMProvider } from "./base";
 import { parseToFullStoryResponse } from "@/utils/response-parser";
 import { parseJSONResponse } from "@/utils/string";
 import { logger } from "../logger";
-import { toast } from "sonner";
 
-export class OpenAIProvider extends BaseLLMProvider {
+export class GoogleProvider extends BaseLLMProvider {
   name: string;
   protected apiKey: string;
   protected apiBase: string;
   protected model: string;
-  protected client: OpenAI;
+  protected client: GoogleGenAI;
 
   constructor(apiKey: string, name: string, apiBase: string, model: string) {
     super(apiKey, apiBase, model);
@@ -24,15 +23,7 @@ export class OpenAIProvider extends BaseLLMProvider {
       throw new Error(`${name} API key is required`);
     }
 
-    this.client = new OpenAI({
-      apiKey: this.apiKey,
-      baseURL: this.apiBase,
-      dangerouslyAllowBrowser: true,
-      defaultHeaders: {
-        //   "HTTP-Referer": "https://jade-compass.vercel.app",
-        "X-Title": "Jade Compass: Relic Expedition",
-      },
-    });
+    this.client = new GoogleGenAI({ apiKey: this.apiKey });
   }
 
   async generateFullStory(
@@ -64,17 +55,16 @@ export class OpenAIProvider extends BaseLLMProvider {
         throw new Error(`${this.name} API key is not configured`);
       }
 
-      const response = await this.client.chat.completions.create({
+      // Combine system prompt and user prompt
+      const fullPrompt = `${systemPrompt}\n\n${prompt}`;
+
+      const response = await this.client.models.generateContent({
         model: this.model,
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: prompt },
-        ],
-        temperature: 0.7,
-        seed: seed && !isNaN(parseInt(seed)) ? parseInt(seed) : undefined,
+        contents: fullPrompt,
       });
 
-      const content = response.choices[0]?.message?.content;
+      const content = response.text;
+
       if (!content) {
         throw new Error(`No content in response from ${this.name}`);
       }
@@ -117,7 +107,7 @@ export class OpenAIProvider extends BaseLLMProvider {
   async testConnection() {
     try {
       const models = await this.client.models.list();
-      logger.log("OpenAI models:", models);
+      logger.log("Google models:", models);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : String(error);

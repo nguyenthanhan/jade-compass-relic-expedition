@@ -1,7 +1,5 @@
 import {
   LLMProvider,
-  IGameRound,
-  INarrativeState,
   IFullStoryResponse,
   ContentLanguageType,
 } from "@/types/game";
@@ -53,9 +51,11 @@ Each round should BUILD upon the previous one, creating a cohesive adventure sto
 
   protected createFullStoryPrompt(
     totalRounds: number,
-    choicesPerRound: number
+    choicesPerRound: number,
+    plusFormat: boolean = false
   ): string {
-    return `Generate a complete ${totalRounds}-round treasure hunting adventure.
+    return (
+      `Generate a complete ${totalRounds}-round treasure hunting adventure.
 
 Requirements:
 1. Create a compelling introduction that sets up the adventure
@@ -80,7 +80,12 @@ Requirements:
 20. summary is the summary of the choice
 21. isCorrect is the correct choice
 22. consequence is the consequence of the choice
+` + (plusFormat ? this.createResponseFormat() : "")
+    );
+  }
 
+  private createResponseFormat(): string {
+    return `
 Response Format (JSON only):
 {
   "intro": "Compelling introduction to the adventure",
@@ -119,19 +124,21 @@ Response Format (JSON only):
 }`;
   }
 
-  //create next round story prompt
   protected createNextRoundStoryPrompt(
     totalRounds: number,
-    choicesPerRound: number
+    choicesPerRound: number,
+    plusFormat: boolean = false
   ): string {
-    return `Generate a complete ${totalRounds}-round treasure hunting adventure.
+    return (
+      `Generate a complete ${totalRounds}-round treasure hunting adventure.
 
     Requirements:
     1. Create a compelling introduction that sets up the adventure
     2. Generate ${totalRounds} interconnected rounds forming a complete story arc
     3. Each round must have exactly ${choicesPerRound} choices
     4. Only ONE correct choice (isCorrect: true) per round
-    `;
+    ` + (plusFormat ? this.createResponseFormat() : "")
+    );
   }
 
   // Helper methods for consistent logging
@@ -185,4 +192,6 @@ Response Format (JSON only):
     const rand = Math.random().toString(36).slice(4, 16);
     return `${Date.now().toString(36)}-${rand}`;
   }
+
+  abstract testConnection(): Promise<void>;
 }

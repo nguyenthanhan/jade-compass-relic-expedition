@@ -11,7 +11,7 @@ export function FailurePage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
-      <div className="max-w-2xl w-full space-y-8">
+      <div className="max-w-6xl w-full space-y-8">
         <div className="text-center space-y-4">
           {gameState.overallTheme && (
             <h1 className="font-pixel text-3xl text-[var(--accent)] mb-4">
