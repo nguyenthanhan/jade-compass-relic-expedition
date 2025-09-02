@@ -259,6 +259,8 @@ export class VercelAIProvider extends BaseLLMProvider {
     }
   }
 
+  async testModelsAvailability() {}
+
   async testConnection() {
     try {
       const result = await generateText({
