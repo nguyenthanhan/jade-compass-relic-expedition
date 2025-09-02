@@ -259,7 +259,7 @@ export class VercelAIProvider extends BaseLLMProvider {
     }
   }
 
-  async getModels() {}
+  async testModelsAvailability() {}
 
   async testConnection() {
     try {

@@ -193,6 +193,6 @@ Response Format (JSON only):
     return `${Date.now().toString(36)}-${rand}`;
   }
 
-  abstract getModels(): Promise<void>;
+  abstract testModelsAvailability(): Promise<void>;
   abstract testConnection(): Promise<void>;
 }

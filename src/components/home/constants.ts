@@ -29,7 +29,7 @@ const OPENROUTER_MODELS = [
     value: "qwen/qwen3-14b:free",
   },
   {
-    value: "qwen3-coder:free",
+    value: "qwen/qwen3-coder:free",
   },
   {
     value: "mistralai/mistral-small-3.2-24b-instruct:free",

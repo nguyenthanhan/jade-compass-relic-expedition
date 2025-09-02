@@ -41,7 +41,7 @@ export interface LLMProvider {
 
   generateRequestId(): string;
 
-  getModels(): Promise<void>;
+  testModelsAvailability(): Promise<void>;
   testConnection(): Promise<void>;
 }
 

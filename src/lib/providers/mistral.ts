@@ -108,7 +108,7 @@ export class MistralProvider extends BaseLLMProvider {
     }
   }
 
-  async getModels() {
+  async testModelsAvailability() {
     try {
       const models = await this.client.models.list();
       logger.log("Mistral models:", models);
@@ -120,6 +120,6 @@ export class MistralProvider extends BaseLLMProvider {
   }
 
   async testConnection() {
-    await this.getModels();
+    await this.testModelsAvailability();
   }
 }

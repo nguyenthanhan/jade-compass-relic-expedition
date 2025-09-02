@@ -49,7 +49,7 @@
 - **Error Handling**: Implement robust fallback to offline mode on failures with clear error messages.
 - **Type Safety**: Use strict typing for provider responses and error states.
 - **Testing**: Mock network calls in tests; avoid real API calls during development.
-- **Provider Support**: Currently supports OpenAI, OpenRouter, Anthropic, Google Gemini, Mistral, and Groq.
+- **Provider Support**: Currently supports OpenAI, OpenRouter, Anthropic, Google Gemini, and Mistral as direct API providers, plus Groq via AI SDK.
 - **AI SDK Integration**: Supports both direct API providers and Vercel AI SDK providers for enhanced functionality.
 - **API Base URLs**: Use correct API endpoints from centralized constants.
 - **CORS Handling**: Proper CORS configuration for cross-origin requests.
@@ -90,7 +90,7 @@
 
 ## Recent Improvements & Best Practices
 
-- **Provider Expansion**: Added support for Mistral and Groq providers, plus AI SDK variants for all providers.
+- **Provider Expansion**: Added support for Mistral as a direct API provider, plus Groq via AI SDK, along with AI SDK variants for all providers.
 - **Error Handling**: Improved error handling across all LLM providers with meaningful error messages.
 - **Model Selection**: Keep model lists simple with only essential properties (`value`).
 - **Modal Layout**: Position action buttons logically in modal footers.
@@ -142,7 +142,6 @@
 - **Anthropic**: Claude models (Opus, Sonnet, Haiku)
 - **Google**: Gemini models with AI Studio integration
 - **Mistral**: Mistral and Pixtral models
-- **Groq**: High-speed inference models
 
 ### AI SDK Providers
 

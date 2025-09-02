@@ -113,7 +113,7 @@ export class OpenAIProvider extends BaseLLMProvider {
     }
   }
 
-  async getModels() {
+  async testModelsAvailability() {
     try {
       const models = await this.client.models.list();
       logger.log("OpenAI models:", models);
@@ -125,6 +125,6 @@ export class OpenAIProvider extends BaseLLMProvider {
   }
 
   async testConnection() {
-    await this.getModels();
+    await this.testModelsAvailability();
   }
 }

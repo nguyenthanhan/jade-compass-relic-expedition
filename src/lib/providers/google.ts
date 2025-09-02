@@ -104,7 +104,7 @@ export class GoogleProvider extends BaseLLMProvider {
     }
   }
 
-  async getModels() {
+  async testModelsAvailability() {
     try {
       const models = await this.client.models.list();
       logger.log("Google models:", models);
@@ -116,6 +116,6 @@ export class GoogleProvider extends BaseLLMProvider {
   }
 
   async testConnection() {
-    await this.getModels();
+    await this.testModelsAvailability();
   }
 }
