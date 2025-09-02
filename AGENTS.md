@@ -18,6 +18,9 @@
 - `pnpm build`: Production build.
 - `pnpm start`: Run the built app.
 - `pnpm lint`: Run Next.js/ESLint checks.
+- `pnpm type-check`: Run TypeScript type checking.
+- `pnpm release`: Create a new release with automatic versioning.
+- `pnpm changelog`: Extract changelog from commit messages.
 
 **Tip**: npm equivalents exist (e.g., `npm run dev`), but this repo uses `pnpm` as the primary package manager.
 
@@ -25,7 +28,7 @@
 
 - **TypeScript**: Strict mode enabled; prefer explicit types for public APIs.
 - **Indentation**: 2 spaces; no semicolons required by tooling is fine.
-- **File names**: kebab-case (e.g., `game-context.tsx`, `openrouter-provider.ts`).
+- **File names**: kebab-case (e.g., `game-context.tsx`, `openai-provider.ts`).
 - **React components**: PascalCase component names inside lower-case files; default export when a file holds a single component.
 - **Hooks**: prefix with `use-` and return typed values.
 - **Imports**: prefer `@/` alias for code under `src/`.
@@ -46,7 +49,8 @@
 - **Error Handling**: Implement robust fallback to offline mode on failures with clear error messages.
 - **Type Safety**: Use strict typing for provider responses and error states.
 - **Testing**: Mock network calls in tests; avoid real API calls during development.
-- **Provider Support**: Currently supports OpenAI, OpenRouter, Anthropic, and Google Gemini.
+- **Provider Support**: Currently supports OpenAI, OpenRouter, Anthropic, Google Gemini, Mistral, and Groq.
+- **AI SDK Integration**: Supports both direct API providers and Vercel AI SDK providers for enhanced functionality.
 - **API Base URLs**: Use correct API endpoints from centralized constants.
 - **CORS Handling**: Proper CORS configuration for cross-origin requests.
 - **Error Messages**: Provide meaningful error messages in `testConnection()` and other methods for better user experience.
@@ -54,11 +58,6 @@
 ## Error Handling Best Practices
 
 - **User-Friendly Messages**: Always extract meaningful error messages from Error objects before throwing new errors.
-- **Consistent Pattern**: Use the established pattern for error handling across all providers:
-  ```typescript
-  const errorMessage = error instanceof Error ? error.message : String(error);
-  throw new Error(`${errorMessage}`);
-  ```
 - **Fallback Handling**: Implement graceful fallbacks when LLM services are unavailable.
 - **Logging**: Log errors for debugging while maintaining user privacy (never log API keys).
 - **Toast Notifications**: Use toast notifications to inform users of connection issues or failures.
@@ -91,7 +90,8 @@
 
 ## Recent Improvements & Best Practices
 
-- **Error Handling**: Improved error handling across all LLM providers with meaningful error messages
+- **Provider Expansion**: Added support for Mistral and Groq providers, plus AI SDK variants for all providers.
+- **Error Handling**: Improved error handling across all LLM providers with meaningful error messages.
 - **Model Selection**: Keep model lists simple with only essential properties (`value`).
 - **Modal Layout**: Position action buttons logically in modal footers.
 - **Button Styling**: Use semantic button variants for better visual hierarchy.
@@ -102,6 +102,7 @@
 - **Constants Management**: Centralized provider data and model lists.
 - **Type Safety**: Improved TypeScript types and interfaces.
 - **Performance**: Fixed infinite re-render loops and optimized context updates.
+- **Release Management**: Added automated release scripts with semantic versioning.
 
 ## Commit & Pull Request Guidelines
 
@@ -123,7 +124,7 @@
 - **README**: Keep setup instructions clear and up-to-date.
 - **Code Comments**: Document complex logic and non-obvious implementations.
 - **Type Definitions**: Use descriptive names and add JSDoc comments for public APIs.
-- **Changelog**: Document breaking changes and new features.
+- **Changelog**: Document breaking changes and new features in `CHANGELOG.md`.
 
 ## Troubleshooting Common Issues
 
@@ -131,6 +132,26 @@
 - **Styling Issues**: Verify Tailwind classes and CSS variable usage.
 - **Provider Errors**: Check API key configuration and network connectivity.
 - **Performance Issues**: Monitor bundle size and implement proper memoization.
+
+## Current Provider Status
+
+### Direct API Providers
+
+- **OpenAI**: GPT-5, GPT-4, GPT-3.5 models with custom model support
+- **OpenRouter**: Access to multiple AI models through unified API
+- **Anthropic**: Claude models (Opus, Sonnet, Haiku)
+- **Google**: Gemini models with AI Studio integration
+- **Mistral**: Mistral and Pixtral models
+- **Groq**: High-speed inference models
+
+### AI SDK Providers
+
+- **OpenAI (AI SDK)**: Enhanced functionality through Vercel AI SDK
+- **Anthropic (AI SDK)**: Claude models with AI SDK features
+- **Google (AI SDK)**: Gemini models with AI SDK integration
+- **Groq (AI SDK)**: Groq models with AI SDK capabilities
+- **Mistral (AI SDK)**: Mistral models with AI SDK features
+- **OpenRouter (AI SDK)**: OpenRouter models with AI SDK support
 
 ---
 

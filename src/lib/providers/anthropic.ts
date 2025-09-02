@@ -112,7 +112,7 @@ export class AnthropicProvider extends BaseLLMProvider {
     }
   }
 
-  async testConnection() {
+  async getModels(): Promise<void> {
     try {
       const models = await this.client.models.list();
       logger.log("Anthropic models:", models);
@@ -121,5 +121,9 @@ export class AnthropicProvider extends BaseLLMProvider {
         error instanceof Error ? error.message : String(error);
       throw new Error(`${errorMessage}`);
     }
+  }
+
+  async testConnection() {
+    await this.getModels();
   }
 }
