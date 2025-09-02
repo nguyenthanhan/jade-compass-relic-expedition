@@ -73,6 +73,18 @@ export class ProviderFactory {
           effectiveModel || providerData.mistral.defaultModel
         );
 
+      case "openai-ai-sdk":
+        if (!apiKey) {
+          throw new Error("API key is required for OpenAI AI SDK");
+        }
+        return new VercelAIProvider(
+          apiKey,
+          providerInfo.name,
+          providerInfo.apiBase,
+          effectiveModel || providerInfo.defaultModel,
+          provider
+        );
+
       case "anthropic-ai-sdk":
         if (!apiKey) {
           throw new Error("API key is required for Anthropic AI SDK");
