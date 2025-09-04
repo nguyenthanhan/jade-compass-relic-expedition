@@ -36,7 +36,7 @@ pnpm run dev
 ## 🎯 How to Play
 
 1. **Configure**: Set rounds (2-10) and choices per round (2-5)
-2. **Choose Provider**: Offline mode or connect to AI providers for dynamic stories
+2. **Choose Provider**: Select an AI provider and enter your API key
 3. **Make Choices**: Each round has multiple choices, but only one leads forward
 4. **Find Treasure**: Survive all rounds to claim the Jade Compass
 
@@ -44,22 +44,18 @@ pnpm run dev
 
 ## 🤖 LLM Provider Configuration
 
-### Offline Mode (Default)
-
-No configuration needed! The game includes pre-written adventure scenarios.
-
 ### API Providers
 
 **Setup**: Get API key → Select provider → Enter key → (Optional) Choose model
 
 **Supported Providers**:
 
-- **OpenAI**: GPT-5, GPT-4, GPT-3.5 models
-- **OpenRouter**: DeepSeek, Kimi, Qwen, Llama, Mistral variants
-- **Anthropic**: Claude Opus, Sonnet models
-- **Google**: Gemini 2.5, 2.0 models
-- **Mistral**: Mistral and Pixtral models
-- **Groq**: Llama, Mixtral, Gemma models
+- **OpenAI**: GPT-5, GPT-4, GPT-3.5 models with custom model support
+- **OpenRouter**: DeepSeek, Kimi, Qwen, Llama, Mistral, Gemini variants
+- **Anthropic**: Claude Opus 4, Claude Sonnet 4, Claude Haiku models
+- **Google**: Gemini 2.5 Flash, Gemini 2.5 Pro, Gemini 2.0 models
+- **Mistral**: Mistral Large, Medium, Small models
+- **Vercel AI SDK**: Unified interface for multiple providers (OpenAI, Anthropic, Google, Groq, Mistral, OpenRouter)
 
 **AI SDK Variants**: Enhanced functionality available for all providers
 
@@ -68,23 +64,7 @@ No configuration needed! The game includes pre-written adventure scenarios.
 **Visual**: Retro pixel-art style with custom animations  
 **Gameplay**: Multiple endings, choice-based progression  
 **Accessibility**: Full keyboard navigation, ARIA labels, focus management  
-**Technical**: Responsive design, localStorage for API keys, smart fallbacks, Next.js 15 + React 19+
-
-## 🛠️ Development
-
-**Tech Stack**: Next.js 15, React 19+, TypeScript 5+, Tailwind CSS 4, Sonner, Lucide Icons
-
-**Structure**:
-
-```
-src/
-├── components/       # UI, pages, home, game components
-├── contexts/         # React contexts
-├── hooks/           # Custom hooks (use-settings, use-round-data)
-├── types/           # TypeScript definitions
-├── lib/providers/   # LLM provider adapters
-└── utils/           # Utility functions
-```
+**Technical**: Responsive design, localStorage for API keys, Next.js 15 + React 19+
 
 ## 📝 Scripts
 
@@ -97,13 +77,6 @@ src/
 **API Keys**: Never logged or transmitted to our backend, sent directly to provider APIs  
 **Storage**: Browser localStorage, clearable via site data  
 **Production**: HTTPS recommended
-
-## 🚀 Recent Updates
-
-**New Providers**: Mistral, Groq, plus AI SDK variants for all providers  
-**Improvements**: Enhanced error handling, code refactoring, custom hooks, centralized constants  
-**Fixes**: Performance optimization, auto-save, CORS resolution, TypeScript types  
-**Features**: Release automation, repository migration
 
 ---
 
