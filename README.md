@@ -35,7 +35,7 @@ pnpm run dev
 
 ## 🎯 How to Play
 
-1. **Configure**: Set rounds (2-10) and choices per round (2-5)
+1. **Configure**: Set rounds (2-10), choices per round (2-5), and content language (English/Vietnamese)
 2. **Choose Provider**: Select an AI provider and enter your API key
 3. **Make Choices**: Each round has multiple choices, but only one leads forward
 4. **Find Treasure**: Survive all rounds to claim the Jade Compass
@@ -54,7 +54,7 @@ pnpm run dev
 - **OpenRouter**: DeepSeek, Kimi, Qwen, Llama, Mistral, Gemini variants
 - **Anthropic**: Claude Opus 4, Claude Sonnet 4, Claude Haiku models
 - **Google**: Gemini 2.5 Flash, Gemini 2.5 Pro, Gemini 2.0 models
-- **Mistral**: Mistral Large, Medium, Small models
+- **Mistral**: Mistral Large, Medium, Small models (with proper JSON format templates)
 - **Vercel AI SDK**: Unified interface for multiple providers (OpenAI, Anthropic, Google, Groq, Mistral, OpenRouter)
 
 **AI SDK Variants**: Enhanced functionality available for all providers
@@ -64,6 +64,7 @@ pnpm run dev
 **Visual**: Retro pixel-art style with custom animations  
 **Gameplay**: Multiple endings, choice-based progression  
 **Accessibility**: Full keyboard navigation, ARIA labels, focus management  
+**Language**: Content generation in English or Vietnamese  
 **Technical**: Responsive design, localStorage for API keys, Next.js 15 + React 19+
 
 ## 📝 Scripts

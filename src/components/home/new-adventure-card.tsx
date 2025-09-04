@@ -9,6 +9,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface NewAdventureCardProps {
   onStartGame: () => void;
@@ -57,6 +64,15 @@ export function NewAdventureCard({
     });
   };
 
+  const onChangeContentLanguage = (value: string) => {
+    updateSettings({
+      gameConfig: {
+        ...(gameConfig ?? {}),
+        contentLanguage: value as "English" | "Vietnamese",
+      },
+    });
+  };
+
   return (
     <Card className="relative flex-1">
       <CardHeader>
@@ -68,9 +84,9 @@ export function NewAdventureCard({
       <CardContent className="space-y-6">
         {/* Game Settings */}
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="font-pixel text-base mb-2 block">
+              <label className="font-pixel text-sm mb-2 block">
                 Rounds (2-10)
               </label>
               <Input
@@ -83,8 +99,8 @@ export function NewAdventureCard({
               />
             </div>
             <div>
-              <label className="font-pixel text-base mb-2 block">
-                Choices per Round (2-5)
+              <label className="font-pixel text-sm mb-2 block">
+                Choices (2-5)
               </label>
               <Input
                 type="number"
@@ -94,6 +110,21 @@ export function NewAdventureCard({
                 onChange={onChangeChoicesPerRound}
                 className="w-full"
               />
+            </div>
+            <div>
+              <label className="font-pixel text-sm mb-2 block">Language</label>
+              <Select
+                value={gameConfig?.contentLanguage ?? "English"}
+                onValueChange={onChangeContentLanguage}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="English">English</SelectItem>
+                  <SelectItem value="Vietnamese">Vietnamese</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

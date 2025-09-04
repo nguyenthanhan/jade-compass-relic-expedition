@@ -39,7 +39,7 @@ export class MistralProvider extends BaseLLMProvider {
     const prompt = this.createFullStoryPrompt(
       totalRounds,
       choicesPerRound,
-      false
+      true
     );
 
     this.logRequest("generateFullStory", requestId, prompt, systemPrompt, {

@@ -25,7 +25,7 @@
 - `src/components/pages/`: Page-specific components (e.g., `home.tsx`, game components).
 - `src/components/home/`: Home page components split into smaller, maintainable pieces.
 - `src/contexts/`: React context state (e.g., `game-context.tsx`).
-- `src/hooks/`: Custom React hooks (e.g., `use-settings.ts`, `use-round-data.ts`).
+- `src/hooks/`: Custom React hooks (currently empty, but ready for future hooks).
 - `src/lib/`: Utilities and providers (LLM adapters in `lib/providers/*`).
 - `src/types/`: Shared TypeScript types (e.g., `types/game.ts`).
 - `src/utils/`: Utility functions (e.g., `response-parser.ts`, `string.ts`).
@@ -44,11 +44,13 @@ src/
 │   ├── home/              # Home page components
 │   ├── pages/             # Game page components
 │   └── ui/                # Reusable UI components
+│       ├── button.tsx     # Button component
+│       ├── card.tsx       # Card component
+│       ├── input.tsx      # Input component
+│       └── select.tsx     # Select dropdown component
 ├── contexts/              # React contexts
 │   └── game-context.tsx   # Game state management
-├── hooks/                 # Custom React hooks
-│   ├── use-settings.ts    # Settings management hook
-│   └── use-round-data.ts  # Round data management hook
+├── hooks/                 # Custom React hooks (currently empty)
 ├── lib/                   # Utility libraries
 │   ├── providers/         # AI provider implementations
 │   │   ├── base.ts        # Base provider interface
@@ -79,8 +81,8 @@ The game consists of four main states:
 
 ### Flow
 
-1. **Setup**: Player chooses the number of rounds (2–10) and choices per round (2–5)
-2. **AI Provider Selection**: Play in offline mode or connect to AI providers
+1. **Setup**: Player chooses the number of rounds (2–10), choices per round (2–5), and content language (English/Vietnamese)
+2. **AI Provider Selection**: Connect to AI providers for dynamic content generation
 3. **Gameplay**: Make choices in each round
 4. **Endgame**: Win (discover the Jade Compass) or lose
 
@@ -140,7 +142,7 @@ GOOGLE_API_KEY=your_key_here
 
 ### Component Groups
 
-- **Home**: Setup screens, AI configuration, introduction
+- **Home**: Setup screens, AI provider configuration, introduction
 - **Game**: Main interface, choices, progress tracking
 - **Pages**: Victory, failure, home
 - **UI**: Reusable widgets (buttons, cards, etc.)
@@ -155,7 +157,7 @@ GOOGLE_API_KEY=your_key_here
 ## LLM Provider Development
 
 - **Adapter Pattern**: All providers must implement the same interface for consistency.
-- **Error Handling**: Implement robust fallback to offline mode on failures with clear error messages.
+- **Error Handling**: Implement robust error handling with clear error messages and graceful failure recovery.
 - **Type Safety**: Use strict typing for provider responses and error states.
 - **Testing**: Mock network calls in tests; avoid real API calls during development.
 - **Provider Support**: Currently supports OpenAI, OpenRouter, Anthropic, Google Gemini, and Mistral as direct API providers, plus Groq via AI SDK.
@@ -175,17 +177,18 @@ GOOGLE_API_KEY=your_key_here
   - `mistral.ts`: Mistral models
   - `vercel.ts`: Vercel AI SDK integration
 - **Error Handling**: Failover and fallback mechanisms
+- **Format Templates**: All providers now use proper JSON format templates (plusFormat: true) for consistent response parsing
 
-### Offline Mode
+### Error Handling
 
-- Pre-written scenarios available
-- No API key required
-- Used as fallback when providers are unavailable
+- Graceful error handling when providers are unavailable
+- Clear error messages for connection issues
+- Automatic retry mechanisms for transient failures
 
 ## Error Handling Best Practices
 
 - **User-Friendly Messages**: Always extract meaningful error messages from Error objects before throwing new errors.
-- **Fallback Handling**: Implement graceful fallbacks when LLM services are unavailable.
+- **Fallback Handling**: Implement graceful error handling when LLM services are unavailable.
 - **Logging**: Log errors for debugging while maintaining user privacy (never log API keys).
 - **Toast Notifications**: Use toast notifications to inform users of connection issues or failures.
 
@@ -204,9 +207,10 @@ GOOGLE_API_KEY=your_key_here
 - **Secrets Handling**: API keys stored in browser localStorage for user convenience.
 - **State Updates**: Use immutable updates and avoid direct mutations.
 - **Performance**: Implement proper dependency arrays in useEffect and useMemo.
-- **Auto-save**: Settings are automatically saved when changed (rounds, choices, provider, model).
-- **Custom Hooks**: `useSettings` hook manages all settings state and localStorage operations.
+- **Auto-save**: Settings are automatically saved when changed (rounds, choices, provider, model, contentLanguage).
+- **Custom Hooks**: Settings management is handled directly in the game context (no separate hooks currently).
 - **Optimized Updates**: Memoized context values to prevent unnecessary re-renders.
+- **Language Support**: Content language selection (English/Vietnamese) with dropdown UI component.
 
 ## Security & Configuration
 
@@ -230,6 +234,9 @@ GOOGLE_API_KEY=your_key_here
 - **Type Safety**: Improved TypeScript types and interfaces.
 - **Performance**: Fixed infinite re-render loops and optimized context updates.
 - **Release Management**: Added automated release scripts with semantic versioning.
+- **Language Support**: Added content language selection (English/Vietnamese) with dropdown UI component.
+- **Provider Fixes**: Fixed Mistral and Vercel providers to use proper JSON format templates (plusFormat: true).
+- **UI Components**: Added Select dropdown component for language selection with proper styling and accessibility.
 
 ## Commit & Pull Request Guidelines
 
@@ -289,6 +296,12 @@ GOOGLE_API_KEY=your_key_here
 - **AI Providers**: `src/lib/providers/` - AI integration layer
 - **Game Logic**: `src/types/game.ts` - Core game type definitions
 - **UI Components**: `src/components/` - Reusable components
+
+### ⚠️ Important Agent Guidelines
+
+- **Path Verification**: If you cannot read a file using the paths mentioned in this documentation, use search tools to find the correct paths and then update this AGENTS.md file with the accurate information.
+- **Documentation Maintenance**: Always verify file paths and update this documentation when you discover discrepancies between documented paths and actual project structure.
+- **Search-First Approach**: When encountering path issues, search the codebase first, then update the documentation to reflect the current state.
 
 ### Key Commands
 
@@ -354,7 +367,7 @@ pnpm build
 - Check localStorage for stored keys
 - Verify provider endpoints
 - Test with simple API calls
-- Fallback to offline mode
+- Handle provider connection errors gracefully
 
 #### Performance Issues
 
@@ -418,11 +431,11 @@ DEBUG=true pnpm dev
 
 ## 🎯 Agent Decision Framework
 
-### When to Use AI vs Offline Mode
+### When to Use Different AI Providers
 
 - **Use AI**: When user has valid API keys and wants dynamic content
-- **Use Offline**: When no API keys, network issues, or for testing
-- **Fallback**: Always have offline scenarios as backup
+- **Provider Selection**: Choose appropriate provider based on user's API keys and preferences
+- **Error Handling**: Gracefully handle provider failures with clear error messages
 
 ### Component Architecture Decisions
 
@@ -458,7 +471,7 @@ DEBUG=true pnpm dev
 ### Architecture Evolution
 
 - [ ] Consider micro-frontend architecture
-- [ ] Implement service worker for offline
+- [ ] Implement service worker for better caching
 - [ ] Add real-time features with WebSockets
 - [ ] Explore WebAssembly for performance
 

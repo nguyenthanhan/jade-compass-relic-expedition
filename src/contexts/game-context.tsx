@@ -41,6 +41,7 @@ const defaultSettings: ISettings = {
   gameConfig: {
     rounds: 2,
     choicesPerRound: 2,
+    contentLanguage: "English",
   },
   providerConfig: {
     provider: "openai",
@@ -91,6 +92,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             gameConfig: {
               rounds: parsed.gameConfig?.rounds || 2,
               choicesPerRound: parsed.gameConfig?.choicesPerRound || 2,
+              contentLanguage: parsed.gameConfig?.contentLanguage || "English",
             },
             providerConfig: {
               provider,
@@ -108,6 +110,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
             gameConfig: {
               rounds: 2,
               choicesPerRound: 2,
+              contentLanguage: "English",
             },
             providerConfig: {
               provider: "openai",
@@ -210,7 +213,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
       const storyData = await provider.generateFullStory(
         rounds,
         choicesPerRound,
-        gameConfig?.contentLanguage || "Vietnamese",
+        gameConfig?.contentLanguage || "English",
         provider.generateRequestId()
       );
 

@@ -196,6 +196,8 @@ export class VercelAIProvider extends BaseLLMProvider {
     const systemPrompt = this.createFullStorySystemPrompt({
       contentLanguage,
     });
+
+    // not need to use plus format because generateObject will return the full response
     const prompt = this.createFullStoryPrompt(
       totalRounds,
       choicesPerRound,
